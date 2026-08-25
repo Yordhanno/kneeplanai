@@ -2,6 +2,8 @@ const translations = {
   es: {
     title: 'KneePlanAI | Análisis inteligente de la alineación de rodilla',
     description: 'KneePlanAI — análisis asistido por inteligencia artificial de la alineación coronal para la planificación de artroplastia total de rodilla.',
+    privacyTitle: 'KneePlanAI | Política de privacidad',
+    privacyDescription: 'Política de privacidad de KneePlanAI Standard: procesamiento local y sin recopilación de datos.',
     menuOpen: 'Abrir menú',
     menuClose: 'Cerrar menú',
     navigation: 'Navegación principal'
@@ -9,6 +11,8 @@ const translations = {
   en: {
     title: 'KneePlanAI | AI-assisted knee alignment analysis',
     description: 'KneePlanAI — AI-assisted coronal alignment analysis for total knee arthroplasty planning and research.',
+    privacyTitle: 'KneePlanAI | Privacy Policy',
+    privacyDescription: 'KneePlanAI Standard privacy policy: local processing and no data collection.',
     menuOpen: 'Open menu',
     menuClose: 'Close menu',
     navigation: 'Primary navigation'
@@ -40,10 +44,13 @@ function setLanguage(language, persist = true) {
   });
 
   const copy = translations[lang];
-  document.title = copy.title;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', copy.description);
-  document.querySelector('meta[property="og:title"]')?.setAttribute('content', copy.title);
-  document.querySelector('meta[property="og:description"]')?.setAttribute('content', copy.description);
+  const isPrivacyPage = document.body.dataset.page === 'privacy';
+  const pageTitle = isPrivacyPage ? copy.privacyTitle : copy.title;
+  const pageDescription = isPrivacyPage ? copy.privacyDescription : copy.description;
+  document.title = pageTitle;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', pageDescription);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', pageTitle);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', pageDescription);
   nav?.setAttribute('aria-label', copy.navigation);
   menuButton?.setAttribute('aria-label', nav?.classList.contains('open') ? copy.menuClose : copy.menuOpen);
 
@@ -79,7 +86,8 @@ nav?.querySelectorAll('a').forEach((link) => {
   });
 });
 
-document.getElementById('year').textContent = new Date().getFullYear();
+const year = document.getElementById('year');
+if (year) year.textContent = new Date().getFullYear();
 setLanguage(detectLanguage(), false);
 
 if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

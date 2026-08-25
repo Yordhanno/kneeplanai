@@ -74,33 +74,37 @@
         </div>
       </div>
 
-      <div class="hero-visual reveal" aria-label="Visualización del análisis de alineación del miembro inferior">
+      <div class="hero-visual reveal" aria-label="Análisis real de alineación del miembro inferior con KneePlanAI">
         <div class="visual-glow"></div>
-        <div class="scan-frame">
-          <div class="scan-label"><span></span> FULL-LENGTH AP</div>
-          <div class="limb-graphic" aria-hidden="true">
-            <div class="axis mechanical"></div>
-            <div class="axis femoral"></div>
-            <div class="axis tibial"></div>
-            <div class="joint hip"></div>
-            <div class="bone femur"></div>
-            <div class="joint knee"></div>
-            <div class="bone tibia"></div>
-            <div class="joint ankle"></div>
-            <div class="angle-tag tag-hka">HKA <b>178.2°</b></div>
-            <div class="angle-tag tag-ldfa">mLDFA <b>88.7°</b></div>
-            <div class="angle-tag tag-mpta">MPTA <b>87.9°</b></div>
-          </div>
-          <div class="scan-footer"><span data-es="REFERENCIAS DETECTADAS" data-en="LANDMARKS DETECTED">REFERENCIAS DETECTADAS</span><strong>12 / 12</strong></div>
-        </div>
-        <div class="floating-card card-cpak">
-          <span data-es="Fenotipo CPAK" data-en="CPAK phenotype">Fenotipo CPAK</span>
-          <strong data-es="Tipo II" data-en="Type II">Tipo II</strong>
-          <small data-es="aHKA neutro · JLO ápice distal" data-en="Neutral aHKA · Apex distal JLO">aHKA neutro · JLO ápice distal</small>
-        </div>
-        <div class="floating-card card-ai">
-          <span class="pulse"></span>
-          <div><strong data-es="Análisis por IA" data-en="AI analysis">Análisis por IA</strong><small data-es="Detección automática de referencias" data-en="Automated landmark detection">Detección automática de referencias</small></div>
+        <div class="analysis-stage">
+          <figure class="radiograph-panel">
+            <div class="radiograph-label"><span></span><span data-es="RADIOGRAFÍA PANORÁMICA AP" data-en="FULL-LENGTH AP RADIOGRAPH">RADIOGRAFÍA PANORÁMICA AP</span></div>
+            <img src="/kneeplanai-radiograph.png" alt="KneePlanAI full-length radiograph analysis" width="2560" height="1600" />
+          </figure>
+
+          <aside class="results-panel" aria-label="Resultados del análisis">
+            <div class="panel-title"><span data-es="RESULTADOS" data-en="RESULTS">RESULTADOS</span><span class="result-badge">CPAK IV</span></div>
+            <dl class="result-list">
+              <div><dt>HKA</dt><dd data-es="−5.62° varo" data-en="−5.62° varus">−5.62° varo</dd></div>
+              <div><dt data-es="Alineación" data-en="Alignment">Alineación</dt><dd data-es="Varo leve" data-en="Mild varus">Varo leve</dd></div>
+              <div><dt>HKA int.</dt><dd>174.38°</dd></div>
+              <div><dt>mLDFA</dt><dd>92.61°</dd></div>
+              <div><dt>MPTA</dt><dd>87.26°</dd></div>
+              <div><dt>JLCA</dt><dd>0.28° (+0.28°)</dd></div>
+              <div><dt>aLDFA</dt><dd>84.99°</dd></div>
+              <div><dt>AMA</dt><dd>7.62°</dd></div>
+              <div><dt>aFTA</dt><dd>+0.67°</dd></div>
+              <div class="highlight-result"><dt>aHKA</dt><dd data-es="−5.35° Varo" data-en="−5.35° Varus">−5.35° Varo</dd></div>
+              <div class="highlight-result"><dt>JLO</dt><dd data-es="179.87° Neutra" data-en="179.87° Neutral">179.87° Neutra</dd></div>
+              <div class="highlight-result"><dt>CPAK</dt><dd data-es="Tipo IV" data-en="Type IV">Tipo IV</dd></div>
+            </dl>
+          </aside>
+
+          <aside class="analysis-status" aria-label="Estado del análisis">
+            <div class="status-heading" data-es="ESTADO" data-en="STATUS">ESTADO</div>
+            <strong><span class="live-dot"></span><span data-es="10 de 10 referencias completadas" data-en="10 of 10 landmarks completed">10 de 10 referencias completadas</span></strong>
+            <p data-es="HKA −5.62° varo; alineación varo leve; CPAK tipo IV." data-en="HKA −5.62° varus; mild varus alignment; CPAK type IV.">HKA −5.62° varo; alineación varo leve; CPAK tipo IV.</p>
+          </aside>
         </div>
       </div>
     </section>
@@ -193,7 +197,7 @@
             <li><span>✓</span><span data-es="Sin publicidad ni seguimiento" data-en="No advertising or tracking">Sin publicidad ni seguimiento</span></li>
             <li><span>✓</span><span data-es="Procesamiento y almacenamiento local" data-en="Local processing and storage">Procesamiento y almacenamiento local</span></li>
           </ul>
-          <a class="button button-primary privacy-button" href="https://kneeplanai-privacy.yordhanno-fallaque.chatgpt.site" target="_blank" rel="noopener noreferrer"><span data-es="Leer política de privacidad" data-en="Read privacy policy">Leer política de privacidad</span><span>↗</span></a>
+          <a class="button button-primary privacy-button" href="/privacy.html"><span data-es="Leer política de privacidad" data-en="Read privacy policy">Leer política de privacidad</span><span>↗</span></a>
         </div>
       </div>
     </section>
@@ -213,7 +217,7 @@
   <footer class="footer section-shell">
     <span>© <span id="year">2026</span> KneePlanAI · Yordhanno Xavier Fallaque Ruiz</span>
     <div class="footer-links">
-      <a href="https://kneeplanai-privacy.yordhanno-fallaque.chatgpt.site" target="_blank" rel="noopener noreferrer" data-es="Política de privacidad" data-en="Privacy Policy">Política de privacidad</a>
+      <a href="/privacy.html" data-es="Política de privacidad" data-en="Privacy Policy">Política de privacidad</a>
       <a href="mailto:yordhanno.fallaque@icloud.com" data-es="Soporte" data-en="Support">Soporte</a>
       <span data-es="Investigación clínica · Lima, Perú" data-en="Clinical research · Lima, Peru">Investigación clínica · Lima, Perú</span>
     </div>
