@@ -71,7 +71,7 @@ a{color:inherit}
 .workflow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .workflow-card,.metric-card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:24px;min-height:235px;transition:.25s ease}
 .workflow-card:hover,.metric-card:hover{transform:translateY(-4px);border-color:rgba(68,227,194,.18);background:#0d131a}
-.step{color:#4c5c6d;font-size:.72rem}.workflow-icon{font-size:1.8rem;margin:34px 0 18px;color:var(--accent)}
+.step{color:#4c5c6d;font-size:.72rem}.workflow-icon{width:48px;height:48px;margin:30px 0 18px;display:grid;place-items:center;color:var(--accent);border:1px solid rgba(68,227,194,.16);border-radius:13px;background:linear-gradient(145deg,rgba(68,227,194,.07),rgba(68,227,194,.015));box-shadow:inset 0 1px rgba(255,255,255,.035)}.workflow-icon svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.workflow-icon .workflow-icon-fill{fill:currentColor;stroke:none}
 .workflow-card h3,.metric-card h3{margin:0 0 9px}.workflow-card p,.metric-card p{color:#8493a4;font-size:.88rem}
 
 .measurements-section{background:#090d12;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
