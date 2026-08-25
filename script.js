@@ -1,12 +1,6 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // Brand assets
-const favicon = document.createElement('link');
-favicon.rel = 'icon';
-favicon.type = 'image/svg+xml';
-favicon.href = '/favicon.svg';
-document.head.appendChild(favicon);
-
 const canonical = document.createElement('link');
 canonical.rel = 'canonical';
 canonical.href = 'https://kneeplanai.com/';
