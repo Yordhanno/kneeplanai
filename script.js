@@ -1,44 +1,98 @@
-document.getElementById('year').textContent = new Date().getFullYear();
+const translations = {
+  es: {
+    title: 'KneePlanAI | Análisis inteligente de la alineación de rodilla',
+    description: 'KneePlanAI — análisis asistido por inteligencia artificial de la alineación coronal para la planificación de artroplastia total de rodilla.',
+    menuOpen: 'Abrir menú',
+    menuClose: 'Cerrar menú',
+    navigation: 'Navegación principal'
+  },
+  en: {
+    title: 'KneePlanAI | AI-assisted knee alignment analysis',
+    description: 'KneePlanAI — AI-assisted coronal alignment analysis for total knee arthroplasty planning and research.',
+    menuOpen: 'Open menu',
+    menuClose: 'Close menu',
+    navigation: 'Primary navigation'
+  }
+};
 
-// Brand assets
-const canonical = document.createElement('link');
-canonical.rel = 'canonical';
-canonical.href = 'https://kneeplanai.com/';
-document.head.appendChild(canonical);
-
-document.querySelectorAll('.brand-mark').forEach((mark) => {
-  mark.innerHTML = '<img src="/logo-mark.svg" alt="" width="28" height="28" style="display:block;width:28px;height:28px" />';
-});
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.12 });
-
-document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-
+const languageButtons = document.querySelectorAll('[data-language]');
 const menuButton = document.querySelector('.menu-button');
 const nav = document.querySelector('.nav');
 
-if (menuButton && nav) {
-  menuButton.addEventListener('click', () => {
-    const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
-    menuButton.setAttribute('aria-expanded', String(!isOpen));
-    nav.style.display = isOpen ? '' : 'flex';
-    if (!isOpen) {
-      nav.style.position = 'absolute';
-      nav.style.top = '68px';
-      nav.style.left = '4vw';
-      nav.style.right = '4vw';
-      nav.style.flexDirection = 'column';
-      nav.style.padding = '18px';
-      nav.style.border = '1px solid rgba(255,255,255,.08)';
-      nav.style.borderRadius = '14px';
-      nav.style.background = 'rgba(7,9,13,.98)';
-    }
+function detectLanguage() {
+  let saved = null;
+  try {
+    saved = localStorage.getItem('kneeplanai-language');
+  } catch (_) {
+    saved = null;
+  }
+  if (saved === 'es' || saved === 'en') return saved;
+  const browserLanguages = navigator.languages?.length ? navigator.languages : [navigator.language || 'en'];
+  return browserLanguages.some((locale) => locale.toLowerCase().startsWith('es')) ? 'es' : 'en';
+}
+
+function setLanguage(language, persist = true) {
+  const lang = language === 'es' ? 'es' : 'en';
+  document.documentElement.lang = lang;
+
+  document.querySelectorAll('[data-es][data-en]').forEach((element) => {
+    element.textContent = element.dataset[lang];
   });
+
+  const copy = translations[lang];
+  document.title = copy.title;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', copy.description);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', copy.title);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', copy.description);
+  nav?.setAttribute('aria-label', copy.navigation);
+  menuButton?.setAttribute('aria-label', nav?.classList.contains('open') ? copy.menuClose : copy.menuOpen);
+
+  languageButtons.forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.language === lang));
+  });
+
+  if (persist) {
+    try {
+      localStorage.setItem('kneeplanai-language', lang);
+    } catch (_) {
+      // The language switch still works when storage is unavailable.
+    }
+  }
+}
+
+languageButtons.forEach((button) => {
+  button.addEventListener('click', () => setLanguage(button.dataset.language));
+});
+
+menuButton?.addEventListener('click', () => {
+  const isOpen = nav.classList.toggle('open');
+  menuButton.setAttribute('aria-expanded', String(isOpen));
+  menuButton.setAttribute('aria-label', translations[document.documentElement.lang].menuClose);
+  if (!isOpen) menuButton.setAttribute('aria-label', translations[document.documentElement.lang].menuOpen);
+});
+
+nav?.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    nav.classList.remove('open');
+    menuButton?.setAttribute('aria-expanded', 'false');
+    menuButton?.setAttribute('aria-label', translations[document.documentElement.lang].menuOpen);
+  });
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+setLanguage(detectLanguage(), false);
+
+if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+} else {
+  document.querySelectorAll('.reveal').forEach((element) => element.classList.add('visible'));
 }
