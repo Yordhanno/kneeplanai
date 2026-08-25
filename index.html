@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="KneePlanAI — AI-assisted coronal alignment analysis for total knee arthroplasty research and preoperative planning." />
+  <meta name="theme-color" content="#07090d" />
+  <title>KneePlanAI | AI-assisted knee alignment analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="KneePlanAI home">
+      <span class="brand-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+      <span>KneePlan<span class="accent">AI</span></span>
+    </a>
+
+    <button class="menu-button" type="button" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#technology">Technology</a>
+      <a href="#measurements">Measurements</a>
+      <a href="#research">Research</a>
+      <a href="#about">About</a>
+    </nav>
+
+    <a class="header-cta" href="#research">View project</a>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span class="status-dot"></span> Research project · Knee alignment intelligence</div>
+        <h1>Coronal alignment.<br><span>Measured intelligently.</span></h1>
+        <p class="hero-subtitle">
+          KneePlanAI is an AI-assisted platform designed to automate key radiographic measurements used in coronal alignment analysis for total knee arthroplasty planning and research.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#technology">Explore KneePlanAI <span>↗</span></a>
+          <a class="button button-ghost" href="#measurements">See measurements</a>
+        </div>
+        <div class="hero-meta">
+          <div><strong>8</strong><span>alignment parameters</span></div>
+          <div><strong>CPAK</strong><span>phenotype classification</span></div>
+          <div><strong>AI</strong><span>automated analysis</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" aria-label="Stylized lower-limb alignment analysis visualization">
+        <div class="visual-glow"></div>
+        <div class="scan-frame">
+          <div class="scan-label"><span></span> FULL-LENGTH AP</div>
+          <div class="limb-graphic" aria-hidden="true">
+            <div class="axis mechanical"></div>
+            <div class="axis femoral"></div>
+            <div class="axis tibial"></div>
+            <div class="joint hip"></div>
+            <div class="bone femur"></div>
+            <div class="joint knee"></div>
+            <div class="bone tibia"></div>
+            <div class="joint ankle"></div>
+            <div class="angle-tag tag-hka">HKA <b>178.2°</b></div>
+            <div class="angle-tag tag-ldfa">mLDFA <b>88.7°</b></div>
+            <div class="angle-tag tag-mpta">MPTA <b>87.9°</b></div>
+          </div>
+          <div class="scan-footer">
+            <span>LANDMARKS DETECTED</span>
+            <strong>12 / 12</strong>
+          </div>
+        </div>
+        <div class="floating-card card-cpak">
+          <span>CPAK phenotype</span>
+          <strong>Type II</strong>
+          <small>Neutral aHKA · Apex distal JLO</small>
+        </div>
+        <div class="floating-card card-ai">
+          <span class="pulse"></span>
+          <div><strong>AI analysis</strong><small>Automated landmark detection</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Project focus">
+      <div>FULL-LENGTH RADIOGRAPHY</div>
+      <span></span>
+      <div>CORONAL ALIGNMENT</div>
+      <span></span>
+      <div>CPAK</div>
+      <span></span>
+      <div>TKA PLANNING</div>
+    </section>
+
+    <section id="technology" class="section-shell section-block">
+      <div class="section-heading reveal">
+        <div class="kicker">01 · TECHNOLOGY</div>
+        <h2>From radiograph to structured alignment data.</h2>
+        <p>KneePlanAI is being developed to identify anatomical landmarks and calculate clinically relevant coronal alignment parameters from full-length standing radiographs.</p>
+      </div>
+
+      <div class="workflow-grid">
+        <article class="workflow-card reveal">
+          <span class="step">01</span>
+          <div class="workflow-icon upload-icon" aria-hidden="true">↥</div>
+          <h3>Input radiograph</h3>
+          <p>Full-length AP lower-limb radiography provides the anatomical reference for the analysis.</p>
+        </article>
+        <article class="workflow-card reveal">
+          <span class="step">02</span>
+          <div class="workflow-icon" aria-hidden="true">⌖</div>
+          <h3>Detect landmarks</h3>
+          <p>The model identifies key hip, knee and ankle landmarks required for angular measurements.</p>
+        </article>
+        <article class="workflow-card reveal">
+          <span class="step">03</span>
+          <div class="workflow-icon" aria-hidden="true">∠</div>
+          <h3>Calculate angles</h3>
+          <p>Alignment parameters are generated automatically from the detected anatomical references.</p>
+        </article>
+        <article class="workflow-card reveal">
+          <span class="step">04</span>
+          <div class="workflow-icon" aria-hidden="true">▦</div>
+          <h3>Structure the phenotype</h3>
+          <p>Derived measurements support standardized interpretation, including CPAK phenotype analysis.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="measurements" class="measurements-section">
+      <div class="section-shell section-block">
+        <div class="section-heading compact reveal">
+          <div class="kicker">02 · MEASUREMENTS</div>
+          <h2>One workflow. Multiple alignment parameters.</h2>
+        </div>
+
+        <div class="measurement-grid">
+          <article class="metric-card reveal"><span>HKA</span><h3>Hip–Knee–Ankle</h3><p>Global coronal alignment of the lower limb.</p></article>
+          <article class="metric-card reveal"><span>mLDFA</span><h3>Mechanical LDFA</h3><p>Distal femoral coronal orientation.</p></article>
+          <article class="metric-card reveal"><span>MPTA</span><h3>Medial Proximal Tibial Angle</h3><p>Proximal tibial coronal orientation.</p></article>
+          <article class="metric-card reveal"><span>JLCA</span><h3>Joint Line Convergence Angle</h3><p>Relationship between distal femoral and proximal tibial joint lines.</p></article>
+          <article class="metric-card reveal"><span>aLDFA</span><h3>Anatomic LDFA</h3><p>Anatomical femoral axis relative to the distal joint line.</p></article>
+          <article class="metric-card reveal"><span>AMA</span><h3>Anatomic–Mechanical Angle</h3><p>Relationship between anatomical and mechanical femoral axes.</p></article>
+          <article class="metric-card reveal"><span>aHKA</span><h3>Arithmetic HKA</h3><p>Estimate of constitutional limb alignment from femoral and tibial geometry.</p></article>
+          <article class="metric-card reveal"><span>JLO</span><h3>Joint Line Obliquity</h3><p>Orientation of the joint line used in CPAK classification.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cpak-section section-shell section-block">
+      <div class="cpak-panel reveal">
+        <div class="cpak-copy">
+          <div class="kicker">CPAK CLASSIFICATION</div>
+          <h2>From angles to phenotype.</h2>
+          <p>By combining arithmetic HKA and joint-line obliquity, KneePlanAI can organize coronal morphology within the CPAK framework.</p>
+          <div class="formula-row">
+            <div><span>aHKA</span><strong>MPTA − mLDFA</strong></div>
+            <div><span>JLO</span><strong>MPTA + mLDFA</strong></div>
+          </div>
+        </div>
+        <div class="cpak-grid" aria-label="Simplified 3 by 3 CPAK phenotype grid">
+          <div><b>I</b><small>Varus · Apex distal</small></div>
+          <div><b>II</b><small>Neutral · Apex distal</small></div>
+          <div><b>III</b><small>Valgus · Apex distal</small></div>
+          <div><b>IV</b><small>Varus · Neutral JLO</small></div>
+          <div class="active"><b>V</b><small>Neutral · Neutral JLO</small></div>
+          <div><b>VI</b><small>Valgus · Neutral JLO</small></div>
+          <div><b>VII</b><small>Varus · Apex proximal</small></div>
+          <div><b>VIII</b><small>Neutral · Apex proximal</small></div>
+          <div><b>IX</b><small>Valgus · Apex proximal</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="research" class="section-shell section-block research-section">
+      <div class="section-heading reveal">
+        <div class="kicker">03 · RESEARCH</div>
+        <h2>Built as a validation-focused research project.</h2>
+        <p>The platform is being developed to evaluate automated radiographic measurements against expert reference measurements, with emphasis on accuracy, agreement and reproducibility.</p>
+      </div>
+      <div class="research-stats reveal">
+        <div><span>Accuracy</span><strong>MAE · RMSE</strong><small>Measurement error</small></div>
+        <div><span>Agreement</span><strong>ICC</strong><small>Reliability assessment</small></div>
+        <div><span>Bias</span><strong>Bland–Altman</strong><small>Limits of agreement</small></div>
+        <div><span>Tolerance</span><strong>≤2° · ≤3° · ≤5°</strong><small>Error thresholds</small></div>
+      </div>
+    </section>
+
+    <section id="about" class="about-section">
+      <div class="section-shell about-inner reveal">
+        <div>
+          <div class="kicker">04 · ABOUT</div>
+          <h2>KneePlanAI</h2>
+        </div>
+        <div class="about-copy">
+          <p>KneePlanAI is an independent research and development initiative focused on applying artificial intelligence to radiographic alignment analysis in knee arthroplasty.</p>
+          <p class="disclaimer"><strong>Current status:</strong> research prototype. Not intended to replace clinical judgment or serve as a standalone medical diagnosis or treatment tool.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer section-shell">
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>KneePlan<span class="accent">AI</span></span></a>
+    <p>AI-assisted coronal alignment analysis.</p>
+    <span>© <span id="year"></span> KneePlanAI</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
