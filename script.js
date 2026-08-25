@@ -1,5 +1,21 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
+// Brand assets
+const favicon = document.createElement('link');
+favicon.rel = 'icon';
+favicon.type = 'image/svg+xml';
+favicon.href = '/favicon.svg';
+document.head.appendChild(favicon);
+
+const canonical = document.createElement('link');
+canonical.rel = 'canonical';
+canonical.href = 'https://kneeplanai.com/';
+document.head.appendChild(canonical);
+
+document.querySelectorAll('.brand-mark').forEach((mark) => {
+  mark.innerHTML = '<img src="/logo-mark.svg" alt="" width="28" height="28" style="display:block;width:28px;height:28px" />';
+});
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
