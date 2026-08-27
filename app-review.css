@@ -50,6 +50,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   width: 48px; height: 36px; border-radius: 12px; border: 1px solid var(--line);
   color: var(--text); background: var(--panel); font-weight: 800; cursor: pointer;
 }
+.review-header-actions { display: flex; align-items: center; gap: 16px; }
+html[lang="es"] [data-lang="en"], html[lang="en"] [data-lang="es"] { display: none !important; }
 
 .section-shell { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
 .hero {

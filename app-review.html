@@ -12,26 +12,36 @@
 <body class="legal-page">
   <header class="site-header">
     <a class="brand" href="index.html"><img src="assets/kneeplanai-icon.png" alt="KneePlanAI" /><span>KneePlanAI</span><small>STANDARD</small></a>
-    <a class="back-link" href="index.html">Home / Inicio</a>
+    <div class="review-header-actions">
+      <button class="lang-toggle" id="appReviewLangToggle" type="button" aria-label="Change language">ES</button>
+      <a class="back-link" href="index.html"><span data-lang="en">Home</span><span data-lang="es">Inicio</span></a>
+    </div>
   </header>
   <main class="legal-wrap">
-    <div class="eyebrow">App Review Resources</div>
-    <h1>Permanent sample files</h1>
-    <p class="lead">Resources for reviewing KneePlanAI Standard for macOS. These URLs are intended to remain available for future App Review submissions.</p>
+    <div class="eyebrow"><span data-lang="en">App Review Resources</span><span data-lang="es">Recursos para revisión de la app</span></div>
+    <h1 data-lang="en">Permanent sample files</h1>
+    <h1 data-lang="es">Archivos de prueba permanentes</h1>
+    <p class="lead" data-lang="en">Resources for reviewing KneePlanAI Standard for macOS. These URLs are intended to remain available for future App Review submissions.</p>
+    <p class="lead" data-lang="es">Recursos para revisar KneePlanAI Standard para macOS. Estas direcciones están destinadas a permanecer disponibles para futuras revisiones en la App Store.</p>
 
     <section class="legal-card">
-      <h2>De-identified DICOM X-ray</h2>
-      <p>A full-length lower-limb radiograph for testing the manual measurement workflow. Direct identifiers and private DICOM tags were removed. Pixel data and Pixel Spacing were preserved.</p>
-      <p><a class="download-button" href="downloads/KneePlanAI_App_Review_Sample_Anonymized.dcm" download>Download DICOM sample (.dcm)</a></p>
+      <h2 data-lang="en">De-identified DICOM X-ray</h2>
+      <h2 data-lang="es">Radiografía DICOM desidentificada</h2>
+      <p data-lang="en">A full-length lower-limb radiograph for testing the manual measurement workflow. Direct identifiers and private DICOM tags were removed. Pixel data and Pixel Spacing were preserved.</p>
+      <p data-lang="es">Radiografía panorámica de miembro inferior para probar el flujo de medición manual. Se eliminaron los identificadores directos y las etiquetas DICOM privadas; se conservaron los datos de píxeles y Pixel Spacing.</p>
+      <p><a class="download-button" href="downloads/KneePlanAI_App_Review_Sample_Anonymized.dcm" download><span data-lang="en">Download DICOM sample (.dcm)</span><span data-lang="es">Descargar muestra DICOM (.dcm)</span></a></p>
       <p class="file-detail"><strong>SHA-256:</strong> <code>23fc2cf7a82d07f827acad03b01923403647fae91d031e807ce2e6c684c10c67</code></p>
 
-      <h2>Complete review package</h2>
-      <p>Contains the de-identified DICOM sample, instructions, an expected-result image, and an example PDF report.</p>
-      <p><a class="download-button" href="downloads/KneePlanAI_App_Review_Sample_Package.zip" download>Download review package (.zip)</a></p>
+      <h2 data-lang="en">Complete review package</h2>
+      <h2 data-lang="es">Paquete completo para revisión</h2>
+      <p data-lang="en">Contains the de-identified DICOM sample, instructions, an expected-result image, and an example PDF report.</p>
+      <p data-lang="es">Incluye la muestra DICOM desidentificada, instrucciones, una imagen del resultado esperado y un informe PDF de ejemplo.</p>
+      <p><a class="download-button" href="downloads/KneePlanAI_App_Review_Sample_Package.zip" download><span data-lang="en">Download review package (.zip)</span><span data-lang="es">Descargar paquete de revisión (.zip)</span></a></p>
       <p class="file-detail"><strong>SHA-256:</strong> <code>b5b68119266128efa1a30f7b18cb6fee3931296348e2f8460e97152fe6cc5805</code></p>
 
-      <h2>Quick review steps</h2>
-      <ol>
+      <h2 data-lang="en">Quick review steps</h2>
+      <h2 data-lang="es">Pasos rápidos para la revisión</h2>
+      <ol data-lang="en">
         <li>Launch KneePlanAI Standard.</li>
         <li>Select <strong>Open radiograph</strong> and open the downloaded DICOM file.</li>
         <li>Select the right side.</li>
@@ -39,13 +49,39 @@
         <li>Open <strong>Results</strong>, <strong>Report</strong>, and <strong>Analysis</strong>.</li>
         <li>Select <strong>Sources</strong> in the main toolbar to view the scientific methodology and linked citations.</li>
       </ol>
-
-      <hr class="card-divider" />
-
-      <h2>Archivos permanentes para revisión</h2>
-      <p>La muestra DICOM está desidentificada y permite probar el flujo de medición manual. El paquete ZIP incluye también instrucciones, una imagen del resultado esperado y un informe PDF de ejemplo.</p>
-      <p>No se necesita cuenta, credenciales, compra, suscripción, conexión a internet ni hardware externo para utilizar la aplicación.</p>
+      <ol data-lang="es">
+        <li>Abra KneePlanAI Standard.</li>
+        <li>Seleccione <strong>Abrir radiografía</strong> y abra el archivo DICOM descargado.</li>
+        <li>Seleccione el lado derecho.</li>
+        <li>Coloque o ajuste las referencias anatómicas y las líneas articulares.</li>
+        <li>Abra <strong>Resultados</strong>, <strong>Informe</strong> y <strong>Análisis</strong>.</li>
+        <li>Seleccione <strong>Fuentes</strong> en la barra principal para consultar la metodología científica y las referencias enlazadas.</li>
+      </ol>
+      <p data-lang="en">No account, credentials, purchase, subscription, internet connection, or external hardware is required to use the application.</p>
+      <p data-lang="es">No se necesita cuenta, credenciales, compra, suscripción, conexión a internet ni hardware externo para utilizar la aplicación.</p>
     </section>
   </main>
+  <script>
+    (() => {
+      const storageKey = 'kneeplanai-language';
+      const supported = ['es', 'en'];
+      const detected = (navigator.languages?.[0] || navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+      const saved = localStorage.getItem(storageKey);
+      let current = supported.includes(saved) ? saved : detected;
+      const toggle = document.getElementById('appReviewLangToggle');
+
+      const applyLanguage = (language) => {
+        current = supported.includes(language) ? language : 'en';
+        document.documentElement.lang = current;
+        document.title = current === 'es' ? 'Recursos para revisión de la app — KneePlanAI' : 'App Review Resources — KneePlanAI';
+        toggle.textContent = current === 'es' ? 'EN' : 'ES';
+        toggle.setAttribute('aria-label', current === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish');
+        localStorage.setItem(storageKey, current);
+      };
+
+      toggle.addEventListener('click', () => applyLanguage(current === 'es' ? 'en' : 'es'));
+      applyLanguage(current);
+    })();
+  </script>
 </body>
 </html>
