@@ -3,156 +3,229 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#07131a" />
-  <meta name="description" content="KneePlanAI Standard — medición manual de alineación coronal, análisis CPAK e informes estructurados para macOS." />
-  <meta property="og:title" content="KneePlanAI Standard" />
-  <meta property="og:description" content="Coronal knee planning for healthcare professionals." />
-  <meta property="og:image" content="assets/kneeplanai-icon.png" />
-  <title>KneePlanAI Standard</title>
-  <link rel="icon" href="assets/kneeplanai-icon.png" />
+  <meta name="description" content="KneePlanAI — análisis asistido por inteligencia artificial de la alineación coronal para la planificación de artroplastia total de rodilla." />
+  <meta name="theme-color" content="#07090d" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="KneePlanAI" />
+  <meta property="og:title" content="KneePlanAI | Análisis inteligente de la alineación de rodilla" />
+  <meta property="og:description" content="Medición radiográfica asistida por IA para planificación e investigación en artroplastia total de rodilla." />
+  <meta property="og:url" content="https://kneeplanai.com/" />
+  <meta property="og:image" content="https://kneeplanai.com/favicon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="canonical" href="https://kneeplanai.com/" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=5" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=5" />
+  <link rel="icon" href="/favicon.ico?v=5" sizes="any" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=5" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <title>KneePlanAI | Análisis inteligente de la alineación de rodilla</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="noise" aria-hidden="true"></div>
+
   <header class="site-header">
     <a class="brand" href="#top" aria-label="KneePlanAI">
-      <img src="assets/kneeplanai-icon.png" alt="KneePlanAI" />
-      <span>KneePlanAI</span>
-      <small>STANDARD</small>
+      <img class="brand-icon" src="/favicon-32.png?v=5" alt="" width="32" height="32" />
+      <span>KneePlan<span class="accent">AI</span></span>
     </a>
-    <nav class="nav-links" aria-label="Principal">
-      <a href="#features" data-i18n="nav_features">Funciones</a>
-      <a href="#screens" data-i18n="nav_screens">Capturas</a>
-      <a href="#support" data-i18n="nav_support">Soporte</a>
+
+    <button class="menu-button" type="button" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="#technology" data-es="Tecnología" data-en="Technology">Tecnología</a>
+      <a href="#measurements" data-es="Mediciones" data-en="Measurements">Mediciones</a>
+      <a href="#research" data-es="Investigación" data-en="Research">Investigación</a>
+      <a href="#app" data-es="Aplicación" data-en="App">Aplicación</a>
+      <a href="#about" data-es="Acerca de" data-en="About">Acerca de</a>
     </nav>
-    <button class="lang-toggle" id="langToggle" type="button" aria-label="Cambiar idioma">EN</button>
+
+    <div class="header-actions">
+      <div class="language-switch" role="group" aria-label="Idioma / Language">
+        <button type="button" data-language="es" aria-pressed="true">ES</button>
+        <button type="button" data-language="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="header-cta" href="#research" data-es="Ver proyecto" data-en="View project">Ver proyecto</a>
+    </div>
   </header>
 
   <main id="top">
     <section class="hero section-shell">
-      <div class="hero-copy">
-        <div class="eyebrow" data-i18n="hero_eyebrow">KneePlanAI Standard para macOS</div>
-        <h1 data-i18n="hero_title">Planificación coronal de rodilla, clara y precisa.</h1>
-        <p class="hero-text" data-i18n="hero_text">Mide, revisa y documenta la alineación coronal en radiografías panorámicas de miembros inferiores.</p>
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span class="status-dot"></span><span data-es="PROYECTO DE INVESTIGACIÓN · INTELIGENCIA EN ALINEACIÓN DE RODILLA" data-en="RESEARCH PROJECT · KNEE ALIGNMENT INTELLIGENCE">PROYECTO DE INVESTIGACIÓN · INTELIGENCIA EN ALINEACIÓN DE RODILLA</span></div>
+        <h1>
+          <span data-es="Alineación coronal." data-en="Coronal alignment.">Alineación coronal.</span><br>
+          <span data-es="Medida con inteligencia." data-en="Measured intelligently.">Medida con inteligencia.</span>
+        </h1>
+        <p class="hero-subtitle" data-es="KneePlanAI es una plataforma asistida por inteligencia artificial diseñada para automatizar las principales mediciones radiográficas utilizadas en el análisis de la alineación coronal, la planificación de la artroplastia total de rodilla y la investigación clínica." data-en="KneePlanAI is an AI-assisted platform designed to automate key radiographic measurements used in coronal alignment analysis, total knee arthroplasty planning, and clinical research.">KneePlanAI es una plataforma asistida por inteligencia artificial diseñada para automatizar las principales mediciones radiográficas utilizadas en el análisis de la alineación coronal, la planificación de la artroplastia total de rodilla y la investigación clínica.</p>
         <div class="hero-actions">
-          <a class="store-button" href="https://apps.apple.com/app/id6804541346" target="_blank" rel="noopener noreferrer">
-            <span class="store-kicker" data-i18n="store_kicker">Descargar en</span>
-            <strong>Mac App Store</strong>
-            <span aria-hidden="true">↗</span>
-          </a>
-          <a class="secondary-button" href="#features" data-i18n="hero_secondary">Ver funciones</a>
+          <a class="button button-primary" href="#technology"><span data-es="Explorar KneePlanAI" data-en="Explore KneePlanAI">Explorar KneePlanAI</span><span>↗</span></a>
+          <a class="button button-ghost" href="#measurements" data-es="Ver mediciones" data-en="See measurements">Ver mediciones</a>
         </div>
         <div class="hero-meta">
-          <span>macOS</span>
-          <span>•</span>
-          <span data-i18n="hero_meta_manual">Medición manual</span>
-          <span>•</span>
-          <span data-i18n="hero_meta_local">Procesamiento local</span>
+          <div><strong>8</strong><span data-es="parámetros de alineación" data-en="alignment parameters">parámetros de alineación</span></div>
+          <div><strong>CPAK</strong><span data-es="clasificación fenotípica" data-en="phenotype classification">clasificación fenotípica</span></div>
+          <div><strong>AI</strong><span data-es="análisis automatizado" data-en="automated analysis">análisis automatizado</span></div>
         </div>
       </div>
 
-      <div class="hero-visual" aria-label="Vista de KneePlanAI">
-        <div class="app-window">
-          <div class="window-bar"><i></i><i></i><i></i></div>
-          <img id="heroScreenshot" src="assets/app-es-main.png" alt="KneePlanAI Standard" />
+      <div class="hero-visual reveal" aria-label="Análisis real de alineación del miembro inferior con KneePlanAI">
+        <div class="visual-glow"></div>
+        <div class="analysis-stage">
+          <figure class="radiograph-panel">
+            <div class="radiograph-label"><span></span><span data-es="RADIOGRAFÍA PANORÁMICA AP" data-en="FULL-LENGTH AP RADIOGRAPH">RADIOGRAFÍA PANORÁMICA AP</span></div>
+            <img src="/kneeplanai-radiograph.png" alt="KneePlanAI full-length radiograph analysis" width="2560" height="1600" />
+          </figure>
+
+          <aside class="results-panel" aria-label="Resultados del análisis">
+            <div class="panel-title"><span data-es="RESULTADOS" data-en="RESULTS">RESULTADOS</span><span class="result-badge">CPAK IV</span></div>
+            <dl class="result-list">
+              <div><dt>HKA</dt><dd data-es="−5.62° varo" data-en="−5.62° varus">−5.62° varo</dd></div>
+              <div><dt data-es="Alineación" data-en="Alignment">Alineación</dt><dd data-es="Varo leve" data-en="Mild varus">Varo leve</dd></div>
+              <div><dt>HKA int.</dt><dd>174.38°</dd></div>
+              <div><dt>mLDFA</dt><dd>92.61°</dd></div>
+              <div><dt>MPTA</dt><dd>87.26°</dd></div>
+              <div><dt>JLCA</dt><dd>0.28° (+0.28°)</dd></div>
+              <div><dt>aLDFA</dt><dd>84.99°</dd></div>
+              <div><dt>AMA</dt><dd>7.62°</dd></div>
+              <div><dt>aFTA</dt><dd>+0.67°</dd></div>
+              <div class="highlight-result"><dt>aHKA</dt><dd data-es="−5.35° Varo" data-en="−5.35° Varus">−5.35° Varo</dd></div>
+              <div class="highlight-result"><dt>JLO</dt><dd data-es="179.87° Neutra" data-en="179.87° Neutral">179.87° Neutra</dd></div>
+              <div class="highlight-result"><dt>CPAK</dt><dd data-es="Tipo IV" data-en="Type IV">Tipo IV</dd></div>
+            </dl>
+          </aside>
+
+          <aside class="analysis-status" aria-label="Estado del análisis">
+            <div class="status-heading" data-es="ESTADO" data-en="STATUS">ESTADO</div>
+            <strong><span class="live-dot"></span><span data-es="10 de 10 referencias completadas" data-en="10 of 10 landmarks completed">10 de 10 referencias completadas</span></strong>
+            <p data-es="HKA −5.62° varo; alineación varo leve; CPAK tipo IV." data-en="HKA −5.62° varus; mild varus alignment; CPAK type IV.">HKA −5.62° varo; alineación varo leve; CPAK tipo IV.</p>
+          </aside>
         </div>
       </div>
     </section>
 
-    <section class="trust-strip" aria-label="Características rápidas">
-      <div><strong>HKA</strong><span>mLDFA</span></div>
-      <div><strong>MPTA</strong><span>JLCA</span></div>
-      <div><strong>aHKA</strong><span>JLO</span></div>
-      <div><strong>CPAK</strong><span data-i18n="trust_report">Informe PDF</span></div>
+    <section class="trust-strip" aria-label="Enfoque del proyecto">
+      <div data-es="RADIOGRAFÍA PANORÁMICA" data-en="FULL-LENGTH RADIOGRAPHY">RADIOGRAFÍA PANORÁMICA</div><span></span>
+      <div data-es="ALINEACIÓN CORONAL" data-en="CORONAL ALIGNMENT">ALINEACIÓN CORONAL</div><span></span>
+      <div>CPAK</div><span></span>
+      <div data-es="PLANIFICACIÓN DE ATR" data-en="TKA PLANNING">PLANIFICACIÓN DE ATR</div>
     </section>
 
-    <section id="features" class="section-shell section-block">
-      <div class="section-heading">
-        <div class="eyebrow" data-i18n="features_eyebrow">Diseñado para un flujo simple</div>
-        <h2 data-i18n="features_title">De la radiografía al informe, en un solo lugar.</h2>
-        <p data-i18n="features_text">KneePlanAI organiza las referencias anatómicas, los ángulos y el análisis CPAK sin reemplazar la revisión profesional.</p>
+    <section id="technology" class="section-block section-shell">
+      <div class="section-heading reveal">
+        <p class="kicker" data-es="TECNOLOGÍA" data-en="TECHNOLOGY">TECNOLOGÍA</p>
+        <h2 data-es="De la radiografía a una planificación reproducible." data-en="From radiograph to reproducible planning.">De la radiografía a una planificación reproducible.</h2>
+        <p data-es="Un flujo diseñado para reducir el trabajo manual, estandarizar las mediciones y facilitar el análisis de la anatomía coronal de cada paciente." data-en="A workflow designed to reduce manual work, standardize measurements, and make each patient's coronal anatomy easier to analyze.">Un flujo diseñado para reducir el trabajo manual, estandarizar las mediciones y facilitar el análisis de la anatomía coronal de cada paciente.</p>
       </div>
-
-      <div class="feature-grid">
-        <article class="feature-card">
-          <div class="feature-icon">01</div>
-          <h3 data-i18n="f1_title">Abre tu radiografía</h3>
-          <p data-i18n="f1_text">Compatible con DICOM, HEIC, PNG, JPEG, TIFF, AVIF y WebP.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">02</div>
-          <h3 data-i18n="f2_title">Marca y corrige</h3>
-          <p data-i18n="f2_text">Coloca las referencias anatómicas y ajusta círculos, centros y líneas directamente sobre la imagen.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">03</div>
-          <h3 data-i18n="f3_title">Analiza CPAK</h3>
-          <p data-i18n="f3_text">Visualiza aHKA, JLO, fenotipo CPAK y comparaciones descriptivas de estrategias de alineamiento.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">04</div>
-          <h3 data-i18n="f4_title">Genera tu informe</h3>
-          <p data-i18n="f4_text">Exporta un informe estructurado en PDF con la imagen y los resultados de alineación.</p>
-        </article>
+      <div class="workflow-grid">
+        <article class="workflow-card reveal"><div class="workflow-top"><span class="step">01</span><img class="workflow-icon" src="/workflow-import.png?v=1" alt="" width="320" height="320" /></div><h3 data-es="Importar radiografía" data-en="Import radiograph">Importar radiografía</h3><p data-es="Carga de una radiografía panorámica AP de miembros inferiores en bipedestación." data-en="Load a standing AP full-length lower-limb radiograph.">Carga de una radiografía panorámica AP de miembros inferiores en bipedestación.</p></article>
+        <article class="workflow-card reveal"><div class="workflow-top"><span class="step">02</span><img class="workflow-icon" src="/workflow-detect.png?v=1" alt="" width="320" height="320" /></div><h3 data-es="Detectar referencias" data-en="Detect landmarks">Detectar referencias</h3><p data-es="Identificación automatizada de centros articulares y referencias anatómicas relevantes." data-en="Automated identification of joint centers and relevant anatomical landmarks.">Identificación automatizada de centros articulares y referencias anatómicas relevantes.</p></article>
+        <article class="workflow-card reveal"><div class="workflow-top"><span class="step">03</span><img class="workflow-icon" src="/workflow-calculate.png?v=1" alt="" width="320" height="320" /></div><h3 data-es="Calcular parámetros" data-en="Calculate parameters">Calcular parámetros</h3><p data-es="Cálculo consistente de los ángulos mecánicos, anatómicos e intraarticulares." data-en="Consistent calculation of mechanical, anatomical, and intra-articular angles.">Cálculo consistente de los ángulos mecánicos, anatómicos e intraarticulares.</p></article>
+        <article class="workflow-card reveal"><div class="workflow-top"><span class="step">04</span><img class="workflow-icon" src="/workflow-plan.png?v=1" alt="" width="320" height="320" /></div><h3 data-es="Interpretar y planificar" data-en="Interpret and plan">Interpretar y planificar</h3><p data-es="Clasificación CPAK y presentación estructurada de resultados para investigación y planificación." data-en="CPAK classification and structured results for research and planning.">Clasificación CPAK y presentación estructurada de resultados para investigación y planificación.</p></article>
       </div>
     </section>
 
-    <section id="screens" class="section-shell section-block">
-      <div class="section-heading compact">
-        <div class="eyebrow" data-i18n="screens_eyebrow">Interfaz</div>
-        <h2 data-i18n="screens_title">Todo lo importante, visible.</h2>
-      </div>
-      <div class="screens-grid">
-        <figure class="screen-card">
-          <img id="screenMain" src="assets/app-es-main.png" alt="Medición manual en KneePlanAI" loading="lazy" />
-          <figcaption><strong data-i18n="screen1_title">Medición</strong><span data-i18n="screen1_text">Referencias y resultados en una sola vista.</span></figcaption>
-        </figure>
-        <figure class="screen-card">
-          <img id="screenAnalysis" src="assets/app-es-analysis.png" alt="Análisis CPAK en KneePlanAI" loading="lazy" />
-          <figcaption><strong data-i18n="screen2_title">Análisis CPAK</strong><span data-i18n="screen2_text">Comparación descriptiva de estrategias de alineamiento.</span></figcaption>
-        </figure>
-        <figure class="screen-card report-card">
-          <img id="screenReport" src="assets/app-es-report.png" alt="Informe de KneePlanAI" loading="lazy" />
-          <figcaption><strong data-i18n="screen3_title">Informe</strong><span data-i18n="screen3_text">Resultados organizados y listos para documentar.</span></figcaption>
-        </figure>
+    <section id="measurements" class="section-block measurements-section">
+      <div class="section-shell">
+        <div class="section-heading compact reveal">
+          <p class="kicker" data-es="MEDICIONES" data-en="MEASUREMENTS">MEDICIONES</p>
+          <h2 data-es="Los parámetros esenciales de la alineación coronal." data-en="The essential parameters of coronal alignment.">Los parámetros esenciales de la alineación coronal.</h2>
+        </div>
+        <div class="measurement-grid">
+          <article class="metric-card reveal"><span>HKA</span><h3 data-es="Eje mecánico global" data-en="Global mechanical axis">Eje mecánico global</h3><p data-es="Describe la alineación mecánica global del miembro inferior." data-en="Describes the overall mechanical alignment of the lower limb.">Describe la alineación mecánica global del miembro inferior.</p></article>
+          <article class="metric-card reveal"><span>mLDFA</span><h3 data-es="Fémur distal mecánico" data-en="Mechanical distal femur">Fémur distal mecánico</h3><p data-es="Cuantifica la orientación coronal del fémur distal respecto a su eje mecánico." data-en="Quantifies distal femoral coronal orientation relative to its mechanical axis.">Cuantifica la orientación coronal del fémur distal respecto a su eje mecánico.</p></article>
+          <article class="metric-card reveal"><span>MPTA</span><h3 data-es="Tibia proximal" data-en="Proximal tibia">Tibia proximal</h3><p data-es="Define la orientación de la superficie articular tibial respecto al eje mecánico." data-en="Defines the orientation of the tibial joint surface relative to the mechanical axis.">Define la orientación de la superficie articular tibial respecto al eje mecánico.</p></article>
+          <article class="metric-card reveal"><span>JLCA</span><h3 data-es="Convergencia articular" data-en="Joint-line convergence">Convergencia articular</h3><p data-es="Refleja la relación entre las líneas articulares femoral y tibial." data-en="Reflects the relationship between the femoral and tibial joint lines.">Refleja la relación entre las líneas articulares femoral y tibial.</p></article>
+          <article class="metric-card reveal"><span>aLDFA</span><h3 data-es="Fémur distal anatómico" data-en="Anatomic distal femur">Fémur distal anatómico</h3><p data-es="Relaciona la línea articular distal con el eje anatómico del fémur." data-en="Relates the distal joint line to the anatomical femoral axis.">Relaciona la línea articular distal con el eje anatómico del fémur.</p></article>
+          <article class="metric-card reveal"><span>AMA</span><h3 data-es="Ángulo mecánico-anatómico" data-en="Anatomic–mechanical angle">Ángulo mecánico-anatómico</h3><p data-es="Estima la divergencia entre los ejes anatómico y mecánico femorales." data-en="Estimates divergence between the femoral anatomical and mechanical axes.">Estima la divergencia entre los ejes anatómico y mecánico femorales.</p></article>
+          <article class="metric-card reveal"><span>aHKA</span><h3 data-es="Alineación constitucional" data-en="Constitutional alignment">Alineación constitucional</h3><p data-es="Caracteriza la alineación ósea constitucional minimizando la influencia articular." data-en="Characterizes constitutional bony alignment while minimizing joint-line influence.">Caracteriza la alineación ósea constitucional minimizando la influencia articular.</p></article>
+          <article class="metric-card reveal"><span>JLO</span><h3 data-es="Oblicuidad de la línea articular" data-en="Joint-line obliquity">Oblicuidad de la línea articular</h3><p data-es="Describe la orientación global de la línea articular en el plano coronal." data-en="Describes the overall orientation of the joint line in the coronal plane.">Describe la orientación global de la línea articular en el plano coronal.</p></article>
+        </div>
       </div>
     </section>
 
-    <section class="section-shell callout">
-      <div>
-        <div class="eyebrow" data-i18n="privacy_eyebrow">Privacidad primero</div>
-        <h2 data-i18n="privacy_title">Tus estudios permanecen en tu Mac.</h2>
-        <p data-i18n="privacy_text">KneePlanAI Standard funciona localmente y no requiere crear una cuenta.</p>
+    <section class="section-block section-shell">
+      <div class="cpak-panel reveal">
+        <div class="cpak-copy">
+          <p class="kicker">CPAK</p>
+          <h2 data-es="Fenotipo individual, no solo un número." data-en="An individual phenotype, not just a number.">Fenotipo individual, no solo un número.</h2>
+          <p data-es="CPAK combina la alineación constitucional (aHKA) y la oblicuidad de la línea articular (JLO) para organizar la anatomía coronal en nueve fenotipos." data-en="CPAK combines constitutional alignment (aHKA) and joint-line obliquity (JLO) to organize coronal anatomy into nine phenotypes.">CPAK combina la alineación constitucional (aHKA) y la oblicuidad de la línea articular (JLO) para organizar la anatomía coronal en nueve fenotipos.</p>
+          <div class="formula-row"><div><span>aHKA</span><strong>mLDFA − MPTA</strong></div><div><span>JLO</span><strong>mLDFA + MPTA</strong></div></div>
+        </div>
+        <div class="cpak-grid" aria-label="CPAK types I to IX">
+          <div><b>I</b><small data-es="Varo · Ápice distal" data-en="Varus · Apex distal">Varo · Ápice distal</small></div>
+          <div class="active"><b>II</b><small data-es="Neutro · Ápice distal" data-en="Neutral · Apex distal">Neutro · Ápice distal</small></div>
+          <div><b>III</b><small data-es="Valgo · Ápice distal" data-en="Valgus · Apex distal">Valgo · Ápice distal</small></div>
+          <div><b>IV</b><small data-es="Varo · Neutro" data-en="Varus · Neutral">Varo · Neutro</small></div>
+          <div><b>V</b><small data-es="Neutro · Neutro" data-en="Neutral · Neutral">Neutro · Neutro</small></div>
+          <div><b>VI</b><small data-es="Valgo · Neutro" data-en="Valgus · Neutral">Valgo · Neutro</small></div>
+          <div><b>VII</b><small data-es="Varo · Ápice proximal" data-en="Varus · Apex proximal">Varo · Ápice proximal</small></div>
+          <div><b>VIII</b><small data-es="Neutro · Ápice proximal" data-en="Neutral · Apex proximal">Neutro · Ápice proximal</small></div>
+          <div><b>IX</b><small data-es="Valgo · Ápice proximal" data-en="Valgus · Apex proximal">Valgo · Ápice proximal</small></div>
+        </div>
       </div>
-      <a class="secondary-button" href="privacy.html" data-i18n="privacy_button">Política de privacidad</a>
     </section>
 
-    <section id="support" class="section-shell support-section">
-      <div>
-        <div class="eyebrow" data-i18n="support_eyebrow">Soporte</div>
-        <h2 data-i18n="support_title">¿Necesitas ayuda?</h2>
-        <p data-i18n="support_text">Consulta la guía de soporte o escríbenos para resolver dudas sobre instalación y uso.</p>
+    <section id="research" class="section-block section-shell">
+      <div class="section-heading reveal">
+        <p class="kicker" data-es="INVESTIGACIÓN Y VALIDACIÓN" data-en="RESEARCH & VALIDATION">INVESTIGACIÓN Y VALIDACIÓN</p>
+        <h2 data-es="Desarrollado para medir el error, no ocultarlo." data-en="Built to measure error, not hide it.">Desarrollado para medir el error, no ocultarlo.</h2>
+        <p data-es="La validación se centra en exactitud, concordancia y reproducibilidad frente a un estándar de referencia definido por evaluadores expertos." data-en="Validation focuses on accuracy, agreement, and reproducibility against a reference standard defined by expert evaluators.">La validación se centra en exactitud, concordancia y reproducibilidad frente a un estándar de referencia definido por evaluadores expertos.</p>
       </div>
-      <div class="support-actions">
-        <a class="secondary-button" href="support.html" data-i18n="support_button">Centro de soporte</a>
-        <a class="text-link" href="mailto:yordhanno.fallaque@icloud.com">yordhanno.fallaque@icloud.com ↗</a>
+      <div class="research-stats reveal">
+        <div><span data-es="ERROR ABSOLUTO" data-en="ABSOLUTE ERROR">ERROR ABSOLUTO</span><strong>MAE / RMSE</strong><small data-es="Magnitud del error por parámetro" data-en="Error magnitude by parameter">Magnitud del error por parámetro</small></div>
+        <div><span data-es="CONCORDANCIA" data-en="AGREEMENT">CONCORDANCIA</span><strong>ICC · IC95%</strong><small data-es="Consistencia de las mediciones" data-en="Measurement consistency">Consistencia de las mediciones</small></div>
+        <div><span data-es="SESGO" data-en="BIAS">SESGO</span><strong>Bland–Altman</strong><small data-es="Diferencia media y límites de acuerdo" data-en="Mean difference and limits of agreement">Diferencia media y límites de acuerdo</small></div>
+        <div><span data-es="TOLERANCIA" data-en="TOLERANCE">TOLERANCIA</span><strong>≤2° · ≤3° · ≤5°</strong><small data-es="Proporción dentro de umbrales clínicos" data-en="Proportion within clinical thresholds">Proporción dentro de umbrales clínicos</small></div>
+      </div>
+    </section>
+
+    <section id="app" class="section-block app-section">
+      <div class="section-shell app-grid">
+        <div class="app-icon-wrap reveal"><img src="/favicon-512.png?v=5" alt="KneePlanAI" width="512" height="512" /></div>
+        <div class="app-copy reveal">
+          <p class="kicker">KNEEPLANAI STANDARD · macOS</p>
+          <h2 data-es="Privacidad clínica desde el diseño." data-en="Clinical privacy by design.">Privacidad clínica desde el diseño.</h2>
+          <p data-es="Las radiografías, referencias anatómicas, mediciones e informes se procesan localmente en el Mac del usuario. KneePlanAI Standard no recopila, transmite, almacena ni comparte esos datos." data-en="Radiographs, anatomical landmarks, measurements, and reports are processed locally on the user's Mac. KneePlanAI Standard does not collect, transmit, store, or share this data.">Las radiografías, referencias anatómicas, mediciones e informes se procesan localmente en el Mac del usuario. KneePlanAI Standard no recopila, transmite, almacena ni comparte esos datos.</p>
+          <ul class="privacy-points">
+            <li><span>✓</span><span data-es="Sin cuenta obligatoria" data-en="No account required">Sin cuenta obligatoria</span></li>
+            <li><span>✓</span><span data-es="Sin publicidad ni seguimiento" data-en="No advertising or tracking">Sin publicidad ni seguimiento</span></li>
+            <li><span>✓</span><span data-es="Procesamiento y almacenamiento local" data-en="Local processing and storage">Procesamiento y almacenamiento local</span></li>
+          </ul>
+          <div class="app-actions">
+            <a class="button button-primary privacy-button" href="/privacy.html"><span data-es="Leer política de privacidad" data-en="Read privacy policy">Leer política de privacidad</span><span>↗</span></a>
+            <a class="button button-ghost privacy-button" href="/app-review.html" target="_blank" rel="noopener noreferrer"><span data-es="Recursos para revisión de la app" data-en="App Review resources">Recursos para revisión de la app</span><span>↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about-section">
+      <div class="section-shell about-inner">
+        <div><p class="kicker" data-es="ACERCA DE" data-en="ABOUT">ACERCA DE</p><h2>KneePlanAI</h2></div>
+        <div class="about-copy">
+          <p data-es="KneePlanAI nace como un proyecto clínico y de investigación orientado a mejorar la medición radiográfica y la planificación personalizada de la artroplastia total de rodilla." data-en="KneePlanAI is a clinical and research project created to improve radiographic measurement and personalized total knee arthroplasty planning.">KneePlanAI nace como un proyecto clínico y de investigación orientado a mejorar la medición radiográfica y la planificación personalizada de la artroplastia total de rodilla.</p>
+          <div class="disclaimer"><strong data-es="Estado actual:" data-en="Current status:">Estado actual:</strong> <span data-es="prototipo de investigación y herramienta de apoyo para profesionales capacitados. No realiza diagnósticos autónomos ni sustituye el juicio clínico." data-en="research prototype and decision-support tool for trained professionals. It does not make autonomous diagnoses or replace clinical judgment.">prototipo de investigación y herramienta de apoyo para profesionales capacitados. No realiza diagnósticos autónomos ni sustituye el juicio clínico.</span></div>
+          <p class="contact-line"><span data-es="Contacto:" data-en="Contact:">Contacto:</span> <a href="mailto:yordhanno.fallaque@icloud.com">yordhanno.fallaque@icloud.com</a></p>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="footer-brand">
-      <img src="assets/kneeplanai-icon.png" alt="" />
-      <div><strong>KneePlanAI Standard</strong><span data-i18n="footer_sub">Herramienta de apoyo para profesionales de la salud.</span></div>
-    </div>
+  <footer class="footer section-shell">
+    <span>© <span id="year">2026</span> KneePlanAI · Yordhanno Xavier Fallaque Ruiz</span>
     <div class="footer-links">
-      <a href="privacy.html" data-i18n="footer_privacy">Privacidad</a>
-      <a href="support.html" data-i18n="footer_support">Soporte</a>
-      <a href="scientific-references.html">Scientific references</a>
-      <span>© 2026 KneePlanAI</span>
+      <a href="/privacy.html" data-es="Política de privacidad" data-en="Privacy Policy">Política de privacidad</a>
+      <a href="mailto:yordhanno.fallaque@icloud.com" data-es="Soporte" data-en="Support">Soporte</a>
+      <span data-es="Investigación clínica · Lima, Perú" data-en="Clinical research · Lima, Peru">Investigación clínica · Lima, Perú</span>
     </div>
-    <p class="disclaimer" data-i18n="disclaimer">KneePlanAI es una herramienta de apoyo para profesionales capacitados. No sustituye la valoración clínica ni el juicio profesional.</p>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
