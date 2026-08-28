@@ -89,7 +89,7 @@ a{color:inherit}
 .app-section{background:linear-gradient(145deg,#0b1117,#080b0f);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .app-grid{display:grid;grid-template-columns:.72fr 1.28fr;gap:80px;align-items:center}
 .app-icon-wrap{position:relative;display:grid;place-items:center}.app-icon-wrap:before{content:"";position:absolute;width:80%;aspect-ratio:1;border-radius:50%;background:rgba(68,227,194,.15);filter:blur(45px)}
-.app-icon-wrap img{position:relative;width:min(360px,90%);height:auto;border-radius:26%;box-shadow:0 32px 70px rgba(0,0,0,.42)}
+.app-icon-wrap img{position:relative;width:min(540px,135%);height:auto;border-radius:0;box-shadow:none}
 .privacy-points{list-style:none;margin:27px 0 31px;padding:0;display:grid;gap:12px}.privacy-points li{display:flex;align-items:center;gap:12px;color:#c6d0da}.privacy-points li>span:first-child{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgba(68,227,194,.12);color:var(--accent);font-weight:800}.privacy-button{width:max-content}.app-actions{display:flex;flex-wrap:wrap;gap:12px}
 
 .about-section{border-top:1px solid rgba(255,255,255,.06);background:#0b0f14}.about-inner{display:grid;grid-template-columns:.8fr 1.2fr;gap:80px;padding:98px 0}.disclaimer{padding:18px 20px;border-left:2px solid var(--accent);background:rgba(68,227,194,.03);color:#aeb8c6}.disclaimer strong{color:#ecf4f8}.contact-line a{color:var(--accent);text-underline-offset:4px}
@@ -112,7 +112,7 @@ a{color:inherit}
   .nav{display:none;order:4;width:100%;flex-direction:column;align-items:flex-start;gap:0;padding:10px 0 5px}.nav.open{display:flex}.nav a{width:100%;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
   .hero{grid-template-columns:1fr;padding-top:58px}.hero-visual{min-height:680px;width:min(540px,100%);margin-inline:auto}.workflow-grid,.measurement-grid,.research-stats{grid-template-columns:repeat(2,1fr)}
   .cpak-panel,.about-inner,.app-grid{grid-template-columns:1fr}.trust-strip{overflow:auto;justify-content:flex-start}.research-stats div:nth-child(2){border-right:0}.research-stats div{border-bottom:1px solid rgba(255,255,255,.07)}
-  .app-grid{gap:55px}.app-icon-wrap img{width:min(310px,72vw)}
+  .app-grid{gap:55px}.app-icon-wrap img{width:min(465px,92vw)}
   .privacy-hero,.privacy-contact{grid-template-columns:1fr}.privacy-status-card{justify-self:start}.policy-grid{grid-template-columns:1fr}
 }
 @media(max-width:620px){
