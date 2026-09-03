@@ -5,7 +5,6 @@ const CPAK_TYPES = new Set(['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'
 let researchSchemaPromise = null;
 
 const RESEARCH_SCHEMA_SQL = `
-PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS researchers (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL UNIQUE COLLATE NOCASE,
