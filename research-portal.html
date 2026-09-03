@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#07090d" />
+  <title>KneePlanAI Research | Portal</title>
+  <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/portal.css" />
+</head>
+<body class="portal-body">
+  <div class="noise"></div>
+  <header class="portal-header">
+    <a class="brand" href="https://kneeplanai.com" aria-label="KneePlanAI">
+      <img class="brand-icon" src="/favicon-192.png?v=5" alt="" width="192" height="192" />
+      <span>KneePlan<span class="accent">AI</span> <small>Research</small></span>
+    </a>
+    <div class="portal-header-actions">
+      <a class="portal-header-link" href="/cdn-cgi/access/logout" data-es="Cerrar sesión" data-en="Sign out">Cerrar sesión</a>
+      <div class="language-switch" role="group" aria-label="Language selector"><button type="button" data-language="es" aria-pressed="true">ES</button><button type="button" data-language="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <main class="portal-shell">
+    <div id="portal-loading" class="portal-loading" data-es="Verificando acceso…" data-en="Verifying access…">Verificando acceso…</div>
+    <div id="portal-error" class="portal-alert error"></div>
+
+    <div id="portal-content" class="portal-hidden">
+      <section class="portal-intro">
+        <div>
+          <p class="kicker" data-es="PORTAL PRIVADO DE INVESTIGACIÓN" data-en="PRIVATE RESEARCH PORTAL">PORTAL PRIVADO DE INVESTIGACIÓN</p>
+          <h1 data-es="Validación coordinada. Resultados trazables." data-en="Coordinated validation. Traceable results.">Validación coordinada. Resultados trazables.</h1>
+          <p data-es="Registra resultados de validación o incidencias de prueba utilizando únicamente códigos de caso desidentificados." data-en="Record validation results or testing issues using de-identified case codes only.">Registra resultados de validación o incidencias de prueba utilizando únicamente códigos de caso desidentificados.</p>
+        </div>
+        <aside class="portal-identity"><span data-es="IDENTIDAD ASIGNADA" data-en="ASSIGNED IDENTITY">IDENTIDAD ASIGNADA</span><strong id="portal-kneeplan-id">—</strong><small id="portal-profile">—</small></aside>
+      </section>
+
+      <div id="portal-message" class="portal-alert"></div>
+
+      <section class="portal-stats">
+        <div class="portal-stat"><span data-es="ROL" data-en="ROLE">ROL</span><strong id="portal-role">—</strong></div>
+        <div class="portal-stat"><span data-es="VALIDACIONES ENVIADAS" data-en="VALIDATIONS SUBMITTED">VALIDACIONES ENVIADAS</span><strong id="portal-validations">0</strong></div>
+        <div class="portal-stat"><span data-es="INCIDENCIAS ENVIADAS" data-en="REPORTS SUBMITTED">INCIDENCIAS ENVIADAS</span><strong id="portal-reports">0</strong></div>
+      </section>
+
+      <section id="validation-section" class="portal-section portal-hidden">
+        <div class="portal-section-header"><div><span class="kicker" data-es="VALIDADOR EXTERNO" data-en="EXTERNAL VALIDATOR">VALIDADOR EXTERNO</span><h2 data-es="Registrar una validación" data-en="Record a validation">Registrar una validación</h2><p data-es="Compara la referencia experta con el resultado de KneePlanAI." data-en="Compare the expert reference with the KneePlanAI result.">Compara la referencia experta con el resultado de KneePlanAI.</p></div><span class="portal-badge" data-es="SIN DATOS DEL PACIENTE" data-en="NO PATIENT DATA">SIN DATOS DEL PACIENTE</span></div>
+        <form id="validation-form" class="portal-form">
+          <label><span data-es="Código de caso desidentificado" data-en="De-identified case code">Código de caso desidentificado</span><input name="case_code" required pattern="[A-Za-z0-9._-]{2,64}" maxlength="64" placeholder="KPAI-001" /></label>
+          <label><span data-es="Versión de la aplicación" data-en="App version">Versión de la aplicación</span><input name="app_version" maxlength="30" placeholder="4.0.2" /></label>
+          <label><span data-es="Calidad de imagen" data-en="Image quality">Calidad de imagen</span><select name="image_quality"><option value="" data-es="No especificada" data-en="Not specified">No especificada</option><option value="adequate" data-es="Adecuada" data-en="Adequate">Adecuada</option><option value="limited" data-es="Limitada" data-en="Limited">Limitada</option><option value="poor" data-es="Deficiente" data-en="Poor">Deficiente</option></select></label>
+          <label><span data-es="Tiempo de análisis (segundos)" data-en="Analysis time (seconds)">Tiempo de análisis (segundos)</span><input name="analysis_duration_seconds" type="number" min="0" max="86400" step="1" /></label>
+          <div class="measurement-entry">
+            <table><thead><tr><th data-es="PARÁMETRO" data-en="PARAMETER">PARÁMETRO</th><th data-es="REFERENCIA EXPERTA" data-en="EXPERT REFERENCE">REFERENCIA EXPERTA</th><th>KNEEPLANAI</th></tr></thead><tbody>
+              <tr><td>HKA</td><td><input name="hka_reference" type="number" step="0.01" /></td><td><input name="hka_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>mLDFA</td><td><input name="mldfa_reference" type="number" step="0.01" /></td><td><input name="mldfa_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>MPTA</td><td><input name="mpta_reference" type="number" step="0.01" /></td><td><input name="mpta_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>JLCA</td><td><input name="jlca_reference" type="number" step="0.01" /></td><td><input name="jlca_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>aLDFA</td><td><input name="aldfa_reference" type="number" step="0.01" /></td><td><input name="aldfa_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>AMA</td><td><input name="ama_reference" type="number" step="0.01" /></td><td><input name="ama_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>aFTA</td><td><input name="afta_reference" type="number" step="0.01" /></td><td><input name="afta_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>aHKA</td><td><input name="ahka_reference" type="number" step="0.01" /></td><td><input name="ahka_kneeplan" type="number" step="0.01" /></td></tr>
+              <tr><td>JLO</td><td><input name="jlo_reference" type="number" step="0.01" /></td><td><input name="jlo_kneeplan" type="number" step="0.01" /></td></tr>
+            </tbody></table>
+          </div>
+          <label><span>CPAK — <span data-es="Referencia experta" data-en="Expert reference">Referencia experta</span></span><select name="cpak_reference"><option value="">—</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>V</option><option>VI</option><option>VII</option><option>VIII</option><option>IX</option></select></label>
+          <label><span>CPAK — KneePlanAI</span><select name="cpak_kneeplan"><option value="">—</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>V</option><option>VI</option><option>VII</option><option>VIII</option><option>IX</option></select></label>
+          <label class="portal-form-wide"><span data-es="Observaciones no identificables" data-en="Non-identifying comments">Observaciones no identificables</span><textarea name="comments" maxlength="2000"></textarea></label>
+          <button class="button button-primary portal-submit portal-form-wide" type="submit" data-es="Enviar validación" data-en="Submit validation">Enviar validación</button>
+        </form>
+        <p class="portal-privacy-note"><span>✓</span><span><strong data-es="No incluyas" data-en="Do not include">No incluyas</strong> <span data-es="nombres, documentos, números de historia clínica, fechas de nacimiento ni imágenes radiográficas." data-en="names, documents, medical record numbers, dates of birth, or radiographic images.">nombres, documentos, números de historia clínica, fechas de nacimiento ni imágenes radiográficas.</span></span></p>
+      </section>
+
+      <section id="report-section" class="portal-section portal-hidden">
+        <div class="portal-section-header"><div><span class="kicker">TESTER</span><h2 data-es="Comunicar una incidencia" data-en="Report an issue">Comunicar una incidencia</h2><p data-es="Describe el problema de forma reproducible y sin información clínica identificable." data-en="Describe the issue reproducibly and without identifiable clinical information.">Describe el problema de forma reproducible y sin información clínica identificable.</p></div><span class="portal-badge" data-es="REPORTE ESTRUCTURADO" data-en="STRUCTURED REPORT">REPORTE ESTRUCTURADO</span></div>
+        <form id="report-form" class="portal-form">
+          <label><span data-es="Versión de la aplicación" data-en="App version">Versión de la aplicación</span><input name="app_version" maxlength="30" placeholder="4.0.2" /></label>
+          <label><span data-es="Categoría" data-en="Category">Categoría</span><select name="category" required><option value="workflow" data-es="Flujo de trabajo" data-en="Workflow">Flujo de trabajo</option><option value="measurement" data-es="Mediciones" data-en="Measurements">Mediciones</option><option value="report" data-es="Informe PDF" data-en="PDF report">Informe PDF</option><option value="dicom">DICOM</option><option value="interface" data-es="Interfaz" data-en="Interface">Interfaz</option><option value="performance" data-es="Rendimiento" data-en="Performance">Rendimiento</option><option value="other" data-es="Otro" data-en="Other">Otro</option></select></label>
+          <label><span data-es="Severidad" data-en="Severity">Severidad</span><select name="severity" required><option value="low" data-es="Baja" data-en="Low">Baja</option><option value="medium" data-es="Media" data-en="Medium">Media</option><option value="high" data-es="Alta" data-en="High">Alta</option><option value="critical" data-es="Crítica" data-en="Critical">Crítica</option></select></label>
+          <label><span data-es="Título breve" data-en="Short title">Título breve</span><input name="title" maxlength="140" required /></label>
+          <label class="portal-form-wide"><span data-es="Pasos para reproducir" data-en="Steps to reproduce">Pasos para reproducir</span><textarea name="steps" maxlength="4000" required></textarea></label>
+          <label><span data-es="Resultado esperado" data-en="Expected result">Resultado esperado</span><textarea name="expected" maxlength="2000"></textarea></label>
+          <label><span data-es="Resultado observado" data-en="Observed result">Resultado observado</span><textarea name="actual" maxlength="2000" required></textarea></label>
+          <button class="button button-primary portal-submit portal-form-wide" type="submit" data-es="Enviar incidencia" data-en="Submit issue">Enviar incidencia</button>
+        </form>
+      </section>
+    </div>
+  </main>
+  <script src="/research-portal.js"></script>
+</body>
+</html>

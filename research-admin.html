@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#07090d" />
+  <title>KneePlanAI Research | Administración</title>
+  <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/portal.css" />
+</head>
+<body class="portal-body">
+  <div class="noise"></div>
+  <header class="portal-header">
+    <a class="brand" href="https://kneeplanai.com" aria-label="KneePlanAI"><img class="brand-icon" src="/favicon-192.png?v=5" alt="" width="192" height="192" /><span>KneePlan<span class="accent">AI</span> <small>Admin</small></span></a>
+    <div class="portal-header-actions"><a class="portal-header-link" href="/" data-es="Ver portal" data-en="View portal">Ver portal</a><a class="portal-header-link" href="/cdn-cgi/access/logout" data-es="Cerrar sesión" data-en="Sign out">Cerrar sesión</a><div class="language-switch" role="group" aria-label="Language selector"><button type="button" data-language="es" aria-pressed="true">ES</button><button type="button" data-language="en" aria-pressed="false">EN</button></div></div>
+  </header>
+
+  <main class="portal-shell">
+    <section class="portal-intro">
+      <div><p class="kicker" data-es="ADMINISTRACIÓN DE INVESTIGACIÓN" data-en="RESEARCH ADMINISTRATION">ADMINISTRACIÓN DE INVESTIGACIÓN</p><h1 data-es="Accesos bajo tu control." data-en="Access under your control.">Accesos bajo tu control.</h1><p data-es="Crea identidades aprobadas, suspende accesos, autoriza cambios de dispositivo y exporta los resultados desidentificados." data-en="Create approved identities, suspend access, authorize device changes, and export de-identified results.">Crea identidades aprobadas, suspende accesos, autoriza cambios de dispositivo y exporta los resultados desidentificados.</p></div>
+      <aside class="portal-identity"><span data-es="ADMINISTRADOR AUTORIZADO" data-en="AUTHORIZED ADMINISTRATOR">ADMINISTRADOR AUTORIZADO</span><strong>Yordhanno Fallaque Ruiz</strong><small data-es="Investigador principal" data-en="Principal investigator">Investigador principal</small></aside>
+    </section>
+
+    <div id="admin-error" class="portal-alert error"></div>
+    <div id="admin-message" class="portal-alert"></div>
+
+    <section class="portal-stats">
+      <div class="portal-stat"><span data-es="INVESTIGADORES" data-en="RESEARCHERS">INVESTIGADORES</span><strong id="admin-total">0</strong></div>
+      <div class="portal-stat"><span data-es="ACCESOS ACTIVOS" data-en="ACTIVE ACCESS">ACCESOS ACTIVOS</span><strong id="admin-active">0</strong></div>
+      <div class="portal-stat"><span data-es="DISPOSITIVOS VINCULADOS" data-en="LINKED DEVICES">DISPOSITIVOS VINCULADOS</span><strong id="admin-devices">0</strong></div>
+    </section>
+
+    <div class="admin-layout">
+      <section class="portal-section">
+        <div class="portal-section-header"><div><span class="kicker" data-es="APROBACIÓN MANUAL" data-en="MANUAL APPROVAL">APROBACIÓN MANUAL</span><h2 data-es="Crear acceso" data-en="Create access">Crear acceso</h2><p data-es="Registra únicamente personas cuya solicitud ya hayas revisado." data-en="Register only people whose application you have already reviewed.">Registra únicamente personas cuya solicitud ya hayas revisado.</p></div></div>
+        <form id="admin-user-form" class="portal-form">
+          <label class="portal-form-wide"><span data-es="Nombre completo" data-en="Full name">Nombre completo</span><input name="full_name" maxlength="120" required /></label>
+          <label class="portal-form-wide"><span data-es="Correo real verificado" data-en="Verified real email">Correo real verificado</span><input name="email" type="email" maxlength="254" required /></label>
+          <label class="portal-form-wide"><span data-es="Identidad @kneeplanai.com" data-en="@kneeplanai.com identity">Identidad @kneeplanai.com</span><input name="kneeplan_id" type="email" maxlength="254" placeholder="nombre@kneeplanai.com" pattern="[-a-zA-Z0-9._]+@kneeplanai\.com" required /></label>
+          <label><span data-es="Institución" data-en="Institution">Institución</span><input name="institution" maxlength="160" /></label>
+          <label><span data-es="País" data-en="Country">País</span><input name="country" maxlength="80" /></label>
+          <label class="portal-form-wide"><span data-es="Rol autorizado" data-en="Authorized role">Rol autorizado</span><select name="role" required><option value="validator" data-es="Validador externo" data-en="External validator">Validador externo</option><option value="tester">Tester</option><option value="both" data-es="Validador y tester" data-en="Validator and tester">Validador y tester</option></select></label>
+          <button class="button button-primary portal-submit portal-form-wide" type="submit" data-es="Aprobar y crear identidad" data-en="Approve and create identity">Aprobar y crear identidad</button>
+        </form>
+      </section>
+
+      <section class="portal-section admin-users">
+        <div class="admin-users-header"><h2 data-es="Accesos creados" data-en="Created access">Accesos creados</h2><div class="admin-export"><a href="/api/research/admin/validation.csv" data-es="Exportar validaciones CSV" data-en="Export validations CSV">Exportar validaciones CSV</a><a href="/api/research/admin/reports.csv" data-es="Exportar incidencias CSV" data-en="Export issues CSV">Exportar incidencias CSV</a></div></div>
+        <div id="admin-list" class="admin-list"><p class="admin-empty" data-es="Cargando accesos…" data-en="Loading access…">Cargando accesos…</p></div>
+      </section>
+    </div>
+  </main>
+  <script src="/research-admin.js"></script>
+</body>
+</html>

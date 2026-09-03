@@ -1,6 +1,7 @@
 README.md
 wrangler.jsonc
 worker.js
+schema.sql
 .assetsignore
 .git
 .github

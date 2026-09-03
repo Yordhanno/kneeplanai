@@ -3,6 +3,16 @@
   "name": "kneeplanai",
   "compatibility_date": "2026-08-24",
   "main": "worker.js",
+  "vars": {
+    "ADMIN_EMAIL": "yordhanno.fallaque@icloud.com"
+  },
+  "d1_databases": [
+    {
+      "binding": "RESEARCH_DB",
+      "database_name": "kneeplanai-research",
+      "database_id": "eba06bd4-d7fe-4ae8-a8c1-7962bae8d2fe"
+    }
+  ],
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
