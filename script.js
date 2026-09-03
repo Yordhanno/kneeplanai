@@ -4,6 +4,8 @@ const translations = {
     description: 'KneePlanAI — análisis asistido por inteligencia artificial de la alineación coronal para la planificación de artroplastia total de rodilla.',
     privacyTitle: 'KneePlanAI | Política de privacidad',
     privacyDescription: 'Política de privacidad de KneePlanAI Standard: procesamiento local y sin recopilación de datos.',
+    researchersTitle: 'KneePlanAI | Únete como investigador',
+    researchersDescription: 'Solicita participar como validador externo o tester en la red privada de investigación de KneePlanAI.',
     menuOpen: 'Abrir menú',
     menuClose: 'Cerrar menú',
     navigation: 'Navegación principal'
@@ -13,6 +15,8 @@ const translations = {
     description: 'KneePlanAI — AI-assisted coronal alignment analysis for total knee arthroplasty planning and research.',
     privacyTitle: 'KneePlanAI | Privacy Policy',
     privacyDescription: 'KneePlanAI Standard privacy policy: local processing and no data collection.',
+    researchersTitle: 'KneePlanAI | Join as a researcher',
+    researchersDescription: 'Apply as an external validator or tester in the private KneePlanAI research network.',
     menuOpen: 'Open menu',
     menuClose: 'Close menu',
     navigation: 'Primary navigation'
@@ -44,9 +48,9 @@ function setLanguage(language, persist = true) {
   });
 
   const copy = translations[lang];
-  const isPrivacyPage = document.body.dataset.page === 'privacy';
-  const pageTitle = isPrivacyPage ? copy.privacyTitle : copy.title;
-  const pageDescription = isPrivacyPage ? copy.privacyDescription : copy.description;
+  const page = document.body.dataset.page;
+  const pageTitle = page === 'privacy' ? copy.privacyTitle : page === 'researchers' ? copy.researchersTitle : copy.title;
+  const pageDescription = page === 'privacy' ? copy.privacyDescription : page === 'researchers' ? copy.researchersDescription : copy.description;
   document.title = pageTitle;
   document.querySelector('meta[name="description"]')?.setAttribute('content', pageDescription);
   document.querySelector('meta[property="og:title"]')?.setAttribute('content', pageTitle);
