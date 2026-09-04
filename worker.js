@@ -118,6 +118,43 @@ CREATE TABLE IF NOT EXISTS research_audit (
 CREATE INDEX IF NOT EXISTS idx_audit_created ON research_audit(created_at);
 `;
 
+const RESEARCH_RUNS_SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS research_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  researcher_id INTEGER NOT NULL,
+  case_code TEXT NOT NULL,
+  center_code TEXT NOT NULL DEFAULT '',
+  side TEXT NOT NULL CHECK (side IN ('derecha', 'izquierda')),
+  mode TEXT NOT NULL CHECK (mode IN ('manual_cegado', 'validacion_externa', 'desarrollo_oai')),
+  method TEXT NOT NULL CHECK (method IN ('manual_web', 'autodeteccion_web', 'manual_corregido_web')),
+  session TEXT NOT NULL CHECK (session IN ('inicial', 'repeticion_4_semanas')),
+  image_quality TEXT NOT NULL DEFAULT '' CHECK (image_quality IN ('', 'adequate', 'limited', 'poor')),
+  app_version TEXT NOT NULL,
+  schema_version TEXT NOT NULL,
+  image_sha256 TEXT NOT NULL,
+  filename_sha256 TEXT NOT NULL DEFAULT '',
+  hka_internal REAL,
+  hka_signed REAL,
+  mldfa REAL,
+  mpta REAL,
+  jlca REAL,
+  jlca_signed REAL,
+  aldfa REAL,
+  ama REAL,
+  afta REAL,
+  ahka REAL,
+  jlo REAL,
+  cpak TEXT,
+  manual_seconds REAL,
+  review_confirmed INTEGER NOT NULL DEFAULT 0,
+  raw_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (researcher_id, case_code, side, session, method),
+  FOREIGN KEY (researcher_id) REFERENCES researchers(id) ON DELETE RESTRICT
+);
+`;
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -769,7 +806,21 @@ async function audit(env, actorEmail, action, targetId, detail) {
 
 function ensureResearchSchema(database) {
   if (!researchSchemaPromise) {
-    researchSchemaPromise = database.exec(RESEARCH_SCHEMA_SQL).catch((error) => {
+    researchSchemaPromise = (async () => {
+      const baseTable = await database.prepare(
+        `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'researchers'`
+      ).first();
+
+      if (!baseTable) {
+        await database.exec(RESEARCH_SCHEMA_SQL);
+        return;
+      }
+
+      const runsTable = await database.prepare(
+        `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'research_runs'`
+      ).first();
+      if (!runsTable) await database.exec(RESEARCH_RUNS_SCHEMA_SQL);
+    })().catch((error) => {
       researchSchemaPromise = null;
       throw error;
     });
