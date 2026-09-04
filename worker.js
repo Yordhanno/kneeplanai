@@ -155,6 +155,12 @@ CREATE TABLE IF NOT EXISTS research_runs (
 );
 `;
 
+const RESEARCH_RUNS_INDEX_SQL = [
+  'CREATE INDEX IF NOT EXISTS idx_runs_researcher ON research_runs(researcher_id)',
+  'CREATE INDEX IF NOT EXISTS idx_runs_case ON research_runs(case_code)',
+  'CREATE INDEX IF NOT EXISTS idx_runs_created ON research_runs(created_at)',
+];
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -810,19 +816,17 @@ async function audit(env, actorEmail, action, targetId, detail) {
 function ensureResearchSchema(database) {
   if (!researchSchemaPromise) {
     researchSchemaPromise = (async () => {
-      const baseTable = await database.prepare(
-        `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'researchers'`
-      ).first();
-
-      if (!baseTable) {
+      try {
+        await database.prepare('SELECT 1 FROM researchers LIMIT 1').first();
+      } catch (_) {
         await database.exec(RESEARCH_SCHEMA_SQL);
         return;
       }
 
-      const runsTable = await database.prepare(
-        `SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'research_runs'`
-      ).first();
-      if (!runsTable) await database.exec(RESEARCH_RUNS_SCHEMA_SQL);
+      await database.prepare(RESEARCH_RUNS_SCHEMA_SQL).run();
+      for (const statement of RESEARCH_RUNS_INDEX_SQL) {
+        await database.prepare(statement).run();
+      }
     })().catch((error) => {
       researchSchemaPromise = null;
       throw error;
