@@ -15,26 +15,28 @@
 .reference-label,.calibration-label{display:none!important}
 
 /* Match the lighter visual weight of the desktop v3.0.21 app. */
-.reference-circle{cursor:move;stroke-width:1!important;fill:rgba(38,213,182,.035)!important}
-.reference-point,.reference-handle{stroke-width:1!important}
-.reference-line{stroke-width:1.15!important}
-.axis-line{stroke-width:1!important;opacity:.78}
-.axis-local-tibia-guide{stroke:#84cc16;opacity:.58}
-.calibration-line{stroke:#f5c451;stroke-width:1!important;vector-effect:non-scaling-stroke;opacity:.78}
+.reference-circle{cursor:grab;stroke-width:.85!important;fill:rgba(38,213,182,.025)!important}
+.reference-circle:active{cursor:grabbing}
+.reference-point,.reference-handle{stroke-width:.9!important}
+.reference-line{stroke-width:1!important}
+.axis-line{stroke-width:.9!important;opacity:.76}
+.axis-local-tibia-guide{stroke:#84cc16;opacity:.56}
+.calibration-line{stroke:#f5c451;stroke-width:.9!important;vector-effect:non-scaling-stroke;opacity:.76}
+
+/* Native-app style selected circle: dotted bounding square, no oversized labels or handles. */
+.circle-selection-box{fill:none;stroke:rgba(235,243,246,.72);stroke-width:.7;stroke-dasharray:2.2 2.2;vector-effect:non-scaling-stroke;pointer-events:none}
+.reference-circle.radius-edge-hover{cursor:nwse-resize!important;stroke-width:1.05!important}
+.viewer-scroll.circle-resizing,.viewer-scroll.circle-resizing svg{cursor:nwse-resize!important}
 
 /* Precise placement cursor, as in the native app. */
 .viewer-scroll.placement-mode,.viewer-scroll.placement-mode svg{cursor:crosshair!important}
 .viewer-scroll.placement-mode .reference-circle,.viewer-scroll.placement-mode .reference-handle{cursor:crosshair!important}
 
-/* Small direct-manipulation handle for circle radius. */
-.radius-grip{fill:#071017;stroke:#2ad5b6;stroke-width:1;vector-effect:non-scaling-stroke;cursor:nwse-resize;opacity:.72}
-.radius-grip:hover,.radius-grip.active{fill:#2ad5b6;stroke:#ecffff;opacity:1}
-
 /* Review is still recorded internally, but does not need an extra user checkbox. */
 .review-check{display:none!important}
 
 .status-card.complete p{color:#d6e4e7;font-weight:650}
-.viewer-toolbar p{white-space:normal;text-align:right;line-height:1.25;max-width:560px}
+.viewer-toolbar p{white-space:normal;text-align:right;line-height:1.25;max-width:620px}
 
 @media(max-width:1270px){
   .viewer-actions{grid-template-columns:1fr 1fr}
