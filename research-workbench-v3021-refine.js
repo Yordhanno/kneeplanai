@@ -8,17 +8,22 @@ const referenceLayer = document.getElementById('reference-layer');
 const review = document.getElementById('review-confirmed');
 const toolbarHelp = document.querySelector('.viewer-toolbar p');
 const radiusSlider = document.getElementById('radius-slider');
-const canvas = document.getElementById('radiograph-canvas');
+const fileStatus = document.getElementById('file-status');
+const caseCode = document.getElementById('case-code');
 
 const CIRCLE_KEYS = new Set(['cabeza', 'femur_proximal', 'femur_f10', 'tibia_t4', 'tibia_t10', 'tobillo']);
 
-// Exact native v3.0.21 values from graphics_items.py / image_view.py.
+// Native v3.0.21 values from graphics_items.py / image_view.py.
 // Qt cosmetic pens and ItemIgnoresTransformations are device-pixel based.
 const NATIVE_CENTER_RADIUS_PX = 3.8;
 const NATIVE_POINT_RADIUS_PX = 4.5;
 const NATIVE_ENDPOINT_RADIUS_PX = 3.8;
 const NATIVE_EDGE_TOLERANCE_PX = 9.0;
-const NATIVE_RADIUS_STEP_PX = 2.0;
+
+// Browser wheel/trackpad events arrive much more frequently than Qt wheel events.
+// Keep wheel as a fine adjustment; direct border dragging remains the primary resize method.
+const WEB_RADIUS_WHEEL_STEP = 0.5;
+const WEB_RADIUS_WHEEL_THRESHOLD = 24;
 
 let selectedCircleKey = null;
 let resizing = null;
@@ -26,6 +31,7 @@ let lastCircleTool = null;
 let radiusFrame = 0;
 let pendingRadius = null;
 let overlayScheduled = false;
+const radiusWheelAccumulator = new Map();
 
 // v3.0.21 RadiusControl uses an internal scale of 10 = 0.1 px resolution.
 if (radiusSlider) radiusSlider.step = '0.1';
@@ -64,7 +70,9 @@ function syncNativePixelMetrics() {
   root.style.setProperty('--kpai-center-stroke', px(1.0));
   root.style.setProperty('--kpai-point-stroke', px(1.5));
   root.style.setProperty('--kpai-endpoint-stroke', px(1.5));
-  root.style.setProperty('--kpai-reference-line-stroke', px(1.7));
+  // Slightly lighter than the native 1.7 px because the browser rasterizer
+  // makes these two joint lines appear visually heavier on Retina displays.
+  root.style.setProperty('--kpai-reference-line-stroke', px(1.25));
   root.style.setProperty('--kpai-mechanical-axis-stroke', px(2.4));
   root.style.setProperty('--kpai-anatomical-axis-stroke', px(1.8));
   root.style.setProperty('--kpai-local-axis-stroke', px(1.5));
@@ -73,8 +81,8 @@ function syncNativePixelMetrics() {
 
 function updateToolbarHelp() {
   if (!toolbarHelp) return;
-  toolbarHelp.dataset.es = 'Círculo: arrastra para mover · borde (±9 px): cambia radio · rueda: ±2 px · colocar: cruz';
-  toolbarHelp.dataset.en = 'Circle: drag to move · edge (±9 px): resize · wheel: ±2 px · placement: crosshair';
+  toolbarHelp.dataset.es = 'Círculo: arrastra para mover · arrastra el borde para cambiar radio · rueda: ajuste fino · colocar: cruz';
+  toolbarHelp.dataset.en = 'Circle: drag to move · drag the edge to resize · wheel: fine adjustment · placement: crosshair';
   toolbarHelp.textContent = toolbarHelp.dataset[language()];
 }
 
@@ -162,7 +170,7 @@ function classifyReferenceElements() {
       nativeRadius = NATIVE_CENTER_RADIUS_PX;
     }
 
-    // Browser SVG uses CSS pixels; the native Qt values are device pixels.
+    // Browser SVG uses CSS pixels; native Qt values are device pixels.
     // Divide by devicePixelRatio first, then cancel the radiograph zoom.
     const cssRadius = nativeCssPixels(nativeRadius);
     handle.setAttribute('r', String(cssRadius / scale));
@@ -254,8 +262,8 @@ referenceLayer?.addEventListener('pointerdown', (event) => {
   if (key && circleForKey(key)) selectCircleVisual(key);
   if (!circle || !isNearCircleEdge(event, circle)) return;
 
-  // Base workbench receives pointerdown and selects this circle internally.
-  // We intercept only pointer movement to reproduce v3.0.21 direct 1:1 resize.
+  // The base workbench selects the same circle. Subsequent pointer motion is
+  // intercepted so dragging the border controls only the radius, 1:1.
   resizing = { key: circle.dataset.key, pointerId: event.pointerId };
   viewer?.classList.add('circle-resizing');
 }, true);
@@ -286,23 +294,94 @@ function stopResize(event) {
 window.addEventListener('pointerup', stopResize);
 window.addEventListener('pointercancel', stopResize);
 
-// The native app changes every circle by exactly ±2.0 image pixels for each wheel event.
-// The base web module has a width-dependent step; it runs first, then this listener
-// corrects the remainder so the total matches v3.0.21.
+// Intercept circle wheel events before the base workbench receives them.
+// Trackpad deltas accumulate and produce small 0.5 px changes, preventing sudden jumps.
 viewer?.addEventListener('wheel', (event) => {
   if (!event.deltaY) return;
   const key = event.target?.dataset?.key;
   if (!CIRCLE_KEYS.has(key) || !circleForKey(key) || !radiusSlider) return;
 
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
   selectCircleVisual(key);
-  const direction = event.deltaY < 0 ? 1 : -1;
-  const imageWidth = Number(canvas?.width) || 0;
-  const baseStep = Math.max(0.6, Math.min(3, imageWidth / 1400));
-  const currentAfterBase = Number(radiusSlider.value);
-  if (Number.isFinite(currentAfterBase)) {
-    applyRadius(currentAfterBase + direction * (NATIVE_RADIUS_STEP_PX - baseStep));
+
+  const normalized = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL ? event.deltaY : event.deltaY * 18;
+  let accumulated = (radiusWheelAccumulator.get(key) || 0) + normalized;
+  const direction = Math.sign(accumulated);
+  let steps = Math.floor(Math.abs(accumulated) / WEB_RADIUS_WHEEL_THRESHOLD);
+  steps = Math.min(2, steps);
+
+  if (steps > 0) {
+    const current = Number(radiusSlider.value);
+    if (Number.isFinite(current)) {
+      applyRadius(current + (direction < 0 ? 1 : -1) * WEB_RADIUS_WHEEL_STEP * steps);
+    }
+    accumulated -= direction * WEB_RADIUS_WHEEL_THRESHOLD * steps;
   }
-}, { passive: false });
+  radiusWheelAccumulator.set(key, accumulated);
+}, { capture: true, passive: false });
+
+function genericClipboardFilename(name) {
+  return /^(image|clipboard|clipboard-image|pasted-image|captura|screenshot)([-_ ]?\d+)?\.(png|jpe?g|webp|tiff?)$/i.test(name || '');
+}
+
+function basenameFromClipboardText(value) {
+  const raw = String(value || '').trim().split(/\r?\n/).find(Boolean) || '';
+  if (!raw) return '';
+  try {
+    const decoded = decodeURIComponent(raw.replace(/^file:\/\//i, ''));
+    const candidate = decoded.split(/[\\/]/).pop()?.trim() || '';
+    if (/\.(png|jpe?g|webp|tiff?|dcm|dicom|dcim)$/i.test(candidate)) return candidate;
+  } catch (_) {}
+  return '';
+}
+
+function clipboardOriginalFilename(event) {
+  const files = [...(event.clipboardData?.files || [])];
+  const image = files.find((file) => file.type?.startsWith('image/'));
+  if (image?.name && !genericClipboardFilename(image.name)) return image.name;
+
+  const uriName = basenameFromClipboardText(event.clipboardData?.getData('text/uri-list'));
+  if (uriName) return uriName;
+  const textName = basenameFromClipboardText(event.clipboardData?.getData('text/plain'));
+  if (textName) return textName;
+  return '';
+}
+
+function caseCodeFromOriginalFilename(filename) {
+  const lastDot = filename.lastIndexOf('.');
+  const base = (lastDot > 0 ? filename.slice(0, lastDot) : filename).normalize('NFC').trim();
+  return base.replace(/[\u0000-\u001F<>:"/\\|?*]/g, '-').replace(/-+/g, '-').slice(0, 120).trim();
+}
+
+function restorePastedFilename(filename, attempts = 0) {
+  if (!filename || !fileStatus) return;
+  const text = fileStatus.textContent || '';
+  const stillLoading = /Procesando localmente|Processing locally/i.test(text);
+  if (stillLoading && attempts < 40) {
+    window.setTimeout(() => restorePastedFilename(filename, attempts + 1), 50);
+    return;
+  }
+  if (stillLoading) return;
+
+  const suffixMatch = text.match(/\s·\s\d+\s×\s\d+\s*$/);
+  fileStatus.textContent = `${filename}${suffixMatch ? suffixMatch[0] : ''}`;
+  const recoveredCode = caseCodeFromOriginalFilename(filename);
+  if (recoveredCode && caseCode) {
+    caseCode.value = recoveredCode;
+    caseCode.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+// Safari often keeps the actual filename when a file is copied from Finder,
+// even though the base UI used to replace the visible label with “Portapapeles”.
+// Capture that metadata before the base paste handler runs and restore it afterward.
+window.addEventListener('paste', (event) => {
+  const filename = clipboardOriginalFilename(event);
+  if (!filename) return;
+  window.setTimeout(() => restorePastedFilename(filename), 0);
+}, { capture: true });
 
 for (const button of document.querySelectorAll('[data-language]')) {
   button.addEventListener('click', () => requestAnimationFrame(() => {
