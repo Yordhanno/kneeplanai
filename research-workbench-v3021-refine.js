@@ -1,4 +1,4 @@
-import './research-workbench-v3021.js';
+import './research-workbench-v3021-v2.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const viewer = document.getElementById('viewer-scroll');
@@ -17,8 +17,6 @@ const NATIVE_POINT_RADIUS_PX = 4.5;
 const NATIVE_ENDPOINT_RADIUS_PX = 3.8;
 const NATIVE_EDGE_TOLERANCE_PX = 9.0;
 
-// Web trackpads emit many more wheel events than Qt. This setting keeps the
-// wheel responsive without making it jumpy; dragging the edge remains primary.
 const WEB_RADIUS_WHEEL_STEP = 1.0;
 const WEB_RADIUS_WHEEL_THRESHOLD = 12;
 
@@ -62,9 +60,6 @@ function stageScale() {
 function syncNativePixelMetrics() {
   const root = document.documentElement;
   const px = (value) => `${nativeCssPixels(value)}px`;
-
-  // The Qt 2.5 px cosmetic circle still looks heavier in Safari/Retina than in
-  // the native app. 1.6 physical px reproduces the visual weight more closely.
   root.style.setProperty('--kpai-circle-stroke', px(1.6));
   root.style.setProperty('--kpai-center-stroke', px(1.0));
   root.style.setProperty('--kpai-point-stroke', px(1.5));
@@ -267,9 +262,6 @@ referenceLayer?.addEventListener('pointerdown', (event) => {
   const key = hit?.dataset.key || circle?.dataset.key || handle?.dataset.key;
   if (key && circleForKey(key)) selectCircleVisual(key);
   if (!hit || !key) return;
-
-  // Let the base handler run on this draggable hit ring first so its private
-  // selectedKey is synchronized. We only replace the subsequent movement.
   resizing = { key, pointerId: event.pointerId };
   viewer?.classList.add('circle-resizing');
 }, true);
@@ -295,8 +287,6 @@ function stopResize(event) {
 window.addEventListener('pointerup', stopResize);
 window.addEventListener('pointercancel', stopResize);
 
-// Faster than the previous revision, but still controlled: 1 px per accumulated
-// trackpad step, with at most three steps per browser wheel event.
 viewer?.addEventListener('wheel', (event) => {
   if (!event.deltaY) return;
   const key = event.target?.dataset?.key;
