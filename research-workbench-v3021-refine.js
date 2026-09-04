@@ -11,6 +11,9 @@ const radiusSlider = document.getElementById('radius-slider');
 const canvas = document.getElementById('radiograph-canvas');
 
 const CIRCLE_KEYS = new Set(['cabeza', 'femur_proximal', 'femur_f10', 'tibia_t4', 'tibia_t10', 'tobillo']);
+
+// Exact native v3.0.21 values from graphics_items.py / image_view.py.
+// Qt cosmetic pens and ItemIgnoresTransformations are device-pixel based.
 const NATIVE_CENTER_RADIUS_PX = 3.8;
 const NATIVE_POINT_RADIUS_PX = 4.5;
 const NATIVE_ENDPOINT_RADIUS_PX = 3.8;
@@ -29,6 +32,43 @@ if (radiusSlider) radiusSlider.step = '0.1';
 
 function language() {
   return document.documentElement.lang === 'en' ? 'en' : 'es';
+}
+
+function deviceScale() {
+  return Math.max(1, Number(window.devicePixelRatio) || 1);
+}
+
+function nativeCssPixels(devicePixels) {
+  return Number(devicePixels) / deviceScale();
+}
+
+function stageScale() {
+  if (!stage) return 1;
+  const transform = window.getComputedStyle(stage).transform;
+  if (!transform || transform === 'none') return 1;
+  try {
+    const matrix = new DOMMatrixReadOnly(transform);
+    return Math.max(0.001, Math.hypot(matrix.a, matrix.b));
+  } catch (_) {
+    const match = transform.match(/^matrix\(([^)]+)\)$/);
+    if (!match) return 1;
+    const values = match[1].split(',').map(Number);
+    return Math.max(0.001, Math.hypot(values[0] || 1, values[1] || 0));
+  }
+}
+
+function syncNativePixelMetrics() {
+  const root = document.documentElement;
+  const px = (value) => `${nativeCssPixels(value)}px`;
+  root.style.setProperty('--kpai-circle-stroke', px(2.5));
+  root.style.setProperty('--kpai-center-stroke', px(1.0));
+  root.style.setProperty('--kpai-point-stroke', px(1.5));
+  root.style.setProperty('--kpai-endpoint-stroke', px(1.5));
+  root.style.setProperty('--kpai-reference-line-stroke', px(1.7));
+  root.style.setProperty('--kpai-mechanical-axis-stroke', px(2.4));
+  root.style.setProperty('--kpai-anatomical-axis-stroke', px(1.8));
+  root.style.setProperty('--kpai-local-axis-stroke', px(1.5));
+  root.style.setProperty('--kpai-selection-stroke', px(1.0));
 }
 
 function updateToolbarHelp() {
@@ -78,12 +118,6 @@ function svgPoint(clientX, clientY) {
   return point.matrixTransform(matrix.inverse());
 }
 
-function screenScale() {
-  const matrix = svg?.getScreenCTM();
-  if (!matrix) return 1;
-  return Math.max(0.001, Math.hypot(matrix.a, matrix.b));
-}
-
 function circleForKey(key) {
   if (!referenceLayer || !key) return null;
   return [...referenceLayer.querySelectorAll('.reference-circle[data-key]')]
@@ -100,7 +134,8 @@ function circleGeometry(circle) {
 
 function classifyReferenceElements() {
   if (!referenceLayer) return;
-  const scale = screenScale();
+  syncNativePixelMetrics();
+  const scale = stageScale();
 
   for (const line of referenceLayer.querySelectorAll('.reference-line')) {
     if (!line.dataset.key) {
@@ -114,22 +149,23 @@ function classifyReferenceElements() {
     handle.classList.remove('native-circle-center', 'native-landmark-point', 'native-line-endpoint');
     const key = handle.dataset.key;
     const part = handle.dataset.part || '';
-    let screenRadius = NATIVE_ENDPOINT_RADIUS_PX;
+    let nativeRadius = NATIVE_ENDPOINT_RADIUS_PX;
 
     if (handle.classList.contains('reference-point')) {
       handle.classList.add('native-landmark-point');
-      screenRadius = NATIVE_POINT_RADIUS_PX;
+      nativeRadius = NATIVE_POINT_RADIUS_PX;
     } else if (part === 'point_1' || part === 'point_2') {
       handle.classList.add('native-line-endpoint');
-      screenRadius = NATIVE_ENDPOINT_RADIUS_PX;
+      nativeRadius = NATIVE_ENDPOINT_RADIUS_PX;
     } else if (CIRCLE_KEYS.has(key)) {
       handle.classList.add('native-circle-center');
-      screenRadius = NATIVE_CENTER_RADIUS_PX;
+      nativeRadius = NATIVE_CENTER_RADIUS_PX;
     }
 
-    // Equivalent to QGraphicsItem::ItemIgnoresTransformations in v3.0.21:
-    // marker dimensions remain constant on screen at every zoom level.
-    handle.setAttribute('r', String(screenRadius / scale));
+    // Browser SVG uses CSS pixels; the native Qt values are device pixels.
+    // Divide by devicePixelRatio first, then cancel the radiograph zoom.
+    const cssRadius = nativeCssPixels(nativeRadius);
+    handle.setAttribute('r', String(cssRadius / scale));
   }
 }
 
@@ -207,7 +243,7 @@ function edgeDistance(event, circle) {
 function isNearCircleEdge(event, circle) {
   const data = edgeDistance(event, circle);
   if (!data) return false;
-  const tolerance = NATIVE_EDGE_TOLERANCE_PX / screenScale();
+  const tolerance = nativeCssPixels(NATIVE_EDGE_TOLERANCE_PX) / stageScale();
   return Math.abs(data.distance - data.geometry.radius) <= tolerance;
 }
 
@@ -250,9 +286,9 @@ function stopResize(event) {
 window.addEventListener('pointerup', stopResize);
 window.addEventListener('pointercancel', stopResize);
 
-// The native app changes every circle by exactly ±2.0 image pixels for each
-// wheel event. The base web module has a width-dependent step; it runs first,
-// then this listener corrects the remainder so the total matches v3.0.21.
+// The native app changes every circle by exactly ±2.0 image pixels for each wheel event.
+// The base web module has a width-dependent step; it runs first, then this listener
+// corrects the remainder so the total matches v3.0.21.
 viewer?.addEventListener('wheel', (event) => {
   if (!event.deltaY) return;
   const key = event.target?.dataset?.key;
@@ -275,5 +311,6 @@ for (const button of document.querySelectorAll('[data-language]')) {
   }));
 }
 
+syncNativePixelMetrics();
 updateToolbarHelp();
 scheduleNativeOverlaySync();
