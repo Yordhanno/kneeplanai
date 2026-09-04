@@ -56,14 +56,27 @@
           <button type="button" data-tool="tobillo"><b>AC</b><span data-es="Tobillo" data-en="Ankle">Tobillo</span></button>
         </div>
         <p id="tool-guidance" class="tool-guidance" data-es="Abra una radiografía codificada para comenzar." data-en="Open a coded radiograph to begin.">Abra una radiografía codificada para comenzar.</p>
-        <div id="radius-control" class="radius-control" hidden><label><span data-es="Radio seleccionado" data-en="Selected radius">Radio seleccionado</span><input id="radius-slider" type="range" min="3" max="300" step="1" /></label><output id="radius-value">—</output></div>
-        <div class="viewer-actions"><button id="calibrate-25" type="button" data-es="Escala 25 mm" data-en="25 mm scale">Escala 25 mm</button><button id="seed-axes" type="button" data-es="Proponer 4/10 cm" data-en="Suggest 4/10 cm">Proponer 4/10 cm</button><button id="clear-geometry" type="button" data-es="Borrar referencias" data-en="Clear landmarks">Borrar referencias</button></div>
+        <div id="radius-control" class="radius-control" hidden><label><span data-es="Radio seleccionado" data-en="Selected radius">Radio seleccionado</span><input id="radius-slider" type="range" min="3" max="300" step="0.1" /></label><output id="radius-value">—</output></div>
+
+        <div class="calibration-control">
+          <label for="calibration-diameter"><span data-es="Diámetro del marcador" data-en="Marker diameter">Diámetro del marcador</span><span class="calibration-input"><input id="calibration-diameter" type="number" min="1" max="100" step="0.5" value="25" inputmode="decimal" /><span>mm</span></span></label>
+          <button id="calibrate-25" type="button" data-es="Calibrar esfera" data-en="Calibrate sphere">Calibrar esfera</button>
+        </div>
         <p id="calibration-status" class="calibration-status"></p>
+
+        <div class="viewer-actions"><button id="seed-axes" type="button" data-es="Proponer 4/10 cm" data-en="Suggest 4/10 cm">Proponer 4/10 cm</button><button id="clear-geometry" type="button" data-es="Borrar referencias" data-en="Clear landmarks">Borrar referencias</button></div>
+
+        <div class="nudge-control" aria-label="Ajuste horizontal">
+          <span class="nudge-title" data-es="AJUSTE HORIZONTAL" data-en="HORIZONTAL ADJUSTMENT">AJUSTE HORIZONTAL</span>
+          <div class="nudge-buttons"><button id="nudge-left" type="button" aria-label="Mover a la izquierda">←</button><button id="nudge-right" type="button" aria-label="Mover a la derecha">→</button></div>
+          <p data-es="Seleccione Fémur proximal, F10, T4 o T10 y use ←/→. Shift = desplazamiento mayor." data-en="Select proximal femur, F10, T4 or T10 and use ←/→. Shift = larger step.">Seleccione Fémur proximal, F10, T4 o T10 y use ←/→. Shift = desplazamiento mayor.</p>
+        </div>
+
         <div class="privacy-note"><strong data-es="Procesamiento local" data-en="Local processing">Procesamiento local</strong><span data-es="La radiografía no se sube. Usa solamente nombres de archivo previamente codificados." data-en="The radiograph is not uploaded. Use only previously coded filenames.">La radiografía no se sube. Usa solamente nombres de archivo previamente codificados.</span></div>
       </aside>
 
       <section class="viewer-panel" aria-label="Visor radiográfico">
-        <div class="viewer-toolbar"><div class="zoom-controls"><button id="zoom-out" type="button" aria-label="Reducir">−</button><output id="zoom-value">100%</output><button id="zoom-in" type="button" aria-label="Ampliar">+</button><button id="fit-view" type="button" data-es="Ajustar" data-en="Fit">Ajustar</button></div><p data-es="Rueda: zoom suave · rueda sobre círculo: radio · arrastra círculo: mover · doble clic: ampliar/ajustar" data-en="Wheel: smooth zoom · wheel over circle: radius · drag circle: move · double-click: zoom/fit">Rueda: zoom suave · rueda sobre círculo: radio · arrastra círculo: mover · doble clic: ampliar/ajustar</p></div>
+        <div class="viewer-toolbar"><div class="zoom-controls"><button id="zoom-out" type="button" aria-label="Reducir">−</button><output id="zoom-value">100%</output><button id="zoom-in" type="button" aria-label="Ampliar">+</button><button id="fit-view" type="button" data-es="Ajustar" data-en="Fit">Ajustar</button></div><p data-es="Rueda: zoom suave · rueda sobre círculo: radio · arrastra círculo: mover · borde: ajustar radio" data-en="Wheel: smooth zoom · wheel over circle: radius · drag circle: move · edge: resize radius">Rueda: zoom suave · rueda sobre círculo: radio · arrastra círculo: mover · borde: ajustar radio</p></div>
         <div id="viewer-scroll" class="viewer-scroll">
           <div id="viewer-stage" class="viewer-stage"><canvas id="radiograph-canvas"></canvas><svg id="landmark-layer" aria-label="Área de anotación"><g id="axis-layer"></g><g id="reference-layer"></g></svg></div>
           <div id="viewer-placeholder"><strong data-es="Abra una radiografía para comenzar" data-en="Open a radiograph to begin">Abra una radiografía para comenzar</strong><span data-es="La imagen permanecerá en este dispositivo." data-en="The image will remain on this device.">La imagen permanecerá en este dispositivo.</span></div>
