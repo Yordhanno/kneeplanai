@@ -11,15 +11,30 @@
 .calibration-status.complete{border-color:rgba(245,196,81,.45);color:#e9cf87;background:rgba(116,86,22,.12)}
 .calibration-status.dicom{border-color:rgba(42,213,182,.35);color:#83cfc2}
 
-.reference-circle{cursor:move}
-.reference-label{font-weight:700;stroke-width:2.5;opacity:.88}
-.reference-label.compact{font-weight:700;opacity:.78}
-.axis-local-tibia-guide{stroke:#84cc16;opacity:.72}
-.calibration-line{stroke:#f5c451;stroke-width:1.8;vector-effect:non-scaling-stroke;opacity:.95}
-.calibration-label{fill:#f5c451;font:700 12px Inter,sans-serif;paint-order:stroke;stroke:#061016;stroke-width:2;pointer-events:none}
+/* Keep the radiograph clean: measurements belong in the side panel, not over anatomy. */
+.reference-label,.calibration-label{display:none!important}
+
+/* Match the lighter visual weight of the desktop v3.0.21 app. */
+.reference-circle{cursor:move;stroke-width:1!important;fill:rgba(38,213,182,.035)!important}
+.reference-point,.reference-handle{stroke-width:1!important}
+.reference-line{stroke-width:1.15!important}
+.axis-line{stroke-width:1!important;opacity:.78}
+.axis-local-tibia-guide{stroke:#84cc16;opacity:.58}
+.calibration-line{stroke:#f5c451;stroke-width:1!important;vector-effect:non-scaling-stroke;opacity:.78}
+
+/* Precise placement cursor, as in the native app. */
+.viewer-scroll.placement-mode,.viewer-scroll.placement-mode svg{cursor:crosshair!important}
+.viewer-scroll.placement-mode .reference-circle,.viewer-scroll.placement-mode .reference-handle{cursor:crosshair!important}
+
+/* Small direct-manipulation handle for circle radius. */
+.radius-grip{fill:#071017;stroke:#2ad5b6;stroke-width:1;vector-effect:non-scaling-stroke;cursor:nwse-resize;opacity:.72}
+.radius-grip:hover,.radius-grip.active{fill:#2ad5b6;stroke:#ecffff;opacity:1}
+
+/* Review is still recorded internally, but does not need an extra user checkbox. */
+.review-check{display:none!important}
 
 .status-card.complete p{color:#d6e4e7;font-weight:650}
-.viewer-toolbar p{white-space:normal;text-align:right;line-height:1.25;max-width:520px}
+.viewer-toolbar p{white-space:normal;text-align:right;line-height:1.25;max-width:560px}
 
 @media(max-width:1270px){
   .viewer-actions{grid-template-columns:1fr 1fr}
