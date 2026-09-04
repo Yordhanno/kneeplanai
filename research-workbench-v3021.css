@@ -1,4 +1,4 @@
-/* KneePlanAI Web Research — parity refinements with v3.0.21 */
+/* KneePlanAI Web Research — exact visual parity with native v3.0.21 */
 .case-toolbar{position:relative;z-index:12}
 .workbench-grid{position:relative;z-index:1}
 .results-panel,.references-panel{position:relative;top:auto}
@@ -11,28 +11,66 @@
 .calibration-status.complete{border-color:rgba(245,196,81,.45);color:#e9cf87;background:rgba(116,86,22,.12)}
 .calibration-status.dicom{border-color:rgba(42,213,182,.35);color:#83cfc2}
 
-/* Keep the radiograph clean: measurements belong in the side panel, not over anatomy. */
+/* The native app does not write landmark labels over the radiograph. */
 .reference-label,.calibration-label{display:none!important}
 
-/* Match the lighter visual weight of the desktop v3.0.21 app. */
-.reference-circle{cursor:grab;stroke-width:.85!important;fill:rgba(38,213,182,.025)!important}
+/* ===== v3.0.21 graphics_items.py parity =====
+   AnatomicalCircle: cosmetic pen 2.5 px, NoBrush.
+   LandmarkPoint: radius 4.5 screen px, cosmetic pen 1.5 px.
+   Circle center marker: radius 3.8 screen px, white cosmetic pen 1.0 px.
+   EditableLine: cosmetic pen 1.7 px.
+   EndpointHandle: radius 3.8 screen px, white fill, cosmetic pen 1.5 px.
+   JS compensates marker radii for zoom, equivalent to ItemIgnoresTransformations.
+*/
+.reference-circle{cursor:grab;stroke-width:2.5!important;fill:transparent!important;vector-effect:non-scaling-stroke;pointer-events:all}
 .reference-circle:active{cursor:grabbing}
-.reference-point,.reference-handle{stroke-width:.9!important}
-.reference-line{stroke-width:1!important}
-.axis-line{stroke-width:.9!important;opacity:.76}
-.axis-local-tibia-guide{stroke:#84cc16;opacity:.56}
-.calibration-line{stroke:#f5c451;stroke-width:.9!important;vector-effect:non-scaling-stroke;opacity:.76}
+.reference-circle[data-key="cabeza"]{stroke:#14B8A6!important}
+.reference-circle[data-key="femur_proximal"]{stroke:#A855F7!important}
+.reference-circle[data-key="femur_f10"]{stroke:#06B6D4!important}
+.reference-circle[data-key="tibia_t4"]{stroke:#84CC16!important}
+.reference-circle[data-key="tibia_t10"]{stroke:#65A30D!important}
+.reference-circle[data-key="tobillo"]{stroke:#EC4899!important}
 
-/* Native-app style selected circle: dotted bounding square, no oversized labels or handles. */
-.circle-selection-box{fill:none;stroke:rgba(235,243,246,.72);stroke-width:.7;stroke-dasharray:2.2 2.2;vector-effect:non-scaling-stroke;pointer-events:none}
-.reference-circle.radius-edge-hover{cursor:nwse-resize!important;stroke-width:1.05!important}
-.viewer-scroll.circle-resizing,.viewer-scroll.circle-resizing svg{cursor:nwse-resize!important}
+.native-circle-center{stroke:#FFFFFF!important;stroke-width:1!important;vector-effect:non-scaling-stroke}
+.native-circle-center[data-key="cabeza"]{fill:#14B8A6!important}
+.native-circle-center[data-key="femur_proximal"]{fill:#A855F7!important}
+.native-circle-center[data-key="femur_f10"]{fill:#06B6D4!important}
+.native-circle-center[data-key="tibia_t4"]{fill:#84CC16!important}
+.native-circle-center[data-key="tibia_t10"]{fill:#65A30D!important}
+.native-circle-center[data-key="tobillo"]{fill:#EC4899!important}
 
-/* Precise placement cursor, as in the native app. */
+.native-landmark-point{stroke-width:1.5!important;vector-effect:non-scaling-stroke}
+.native-landmark-point[data-key="femur_distal"]{fill:#A96D08!important;stroke:#F59E0B!important}
+.native-landmark-point[data-key="tibia_proximal"]{fill:#5528A3!important;stroke:#7C3AED!important}
+
+.native-line-endpoint{fill:#FFFFFF!important;stroke-width:1.5!important;vector-effect:non-scaling-stroke}
+.native-line-endpoint[data-key="linea_femoral"]{stroke:#F59E0B!important}
+.native-line-endpoint[data-key="linea_tibial"]{stroke:#3B82F6!important}
+
+.reference-line{stroke-width:1.7!important;vector-effect:non-scaling-stroke}
+.reference-line[data-key="linea_femoral"]{stroke:#F59E0B!important}
+.reference-line[data-key="linea_tibial"]{stroke:#3B82F6!important}
+
+/* ===== v3.0.21 image_view.py axis parity ===== */
+.axis-line{vector-effect:non-scaling-stroke;opacity:1}
+.axis-mechanical-femur{stroke:#22C55E!important;stroke-width:2.4!important}
+.axis-mechanical-tibia{stroke:#EF4444!important;stroke-width:2.4!important}
+.axis-anatomical{stroke:#A855F7!important;stroke-width:1.8!important}
+.axis-local-femur{stroke:#06B6D4!important;stroke-width:1.5!important}
+.axis-local-tibia{stroke:#84CC16!important;stroke-width:1.5!important}
+.axis-local-tibia-guide{stroke:#84CC16!important;stroke-width:1.5!important;opacity:1}
+.calibration-line{stroke:#f5c451!important;stroke-width:1.7!important;vector-effect:non-scaling-stroke;opacity:1}
+
+/* Qt selection appearance: thin dotted bounding rectangle. */
+.circle-selection-box{fill:none;stroke:rgba(235,243,246,.75);stroke-width:.8;stroke-dasharray:2.2 2.2;vector-effect:non-scaling-stroke;pointer-events:none}
+.reference-circle.radius-edge-hover{cursor:move!important}
+.viewer-scroll.circle-resizing,.viewer-scroll.circle-resizing svg{cursor:move!important}
+
+/* Native tool modes: open hand/crosshair. */
 .viewer-scroll.placement-mode,.viewer-scroll.placement-mode svg{cursor:crosshair!important}
 .viewer-scroll.placement-mode .reference-circle,.viewer-scroll.placement-mode .reference-handle{cursor:crosshair!important}
 
-/* Review is still recorded internally, but does not need an extra user checkbox. */
+/* Review remains recorded in the payload without adding an extra user step. */
 .review-check{display:none!important}
 
 .status-card.complete p{color:#d6e4e7;font-weight:650}
