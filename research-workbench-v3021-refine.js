@@ -2,19 +2,30 @@ import './research-workbench-v3021.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const viewer = document.getElementById('viewer-scroll');
+const stage = document.getElementById('viewer-stage');
 const svg = document.getElementById('landmark-layer');
 const referenceLayer = document.getElementById('reference-layer');
 const review = document.getElementById('review-confirmed');
 const toolbarHelp = document.querySelector('.viewer-toolbar p');
 const radiusSlider = document.getElementById('radius-slider');
+const canvas = document.getElementById('radiograph-canvas');
+
+const CIRCLE_KEYS = new Set(['cabeza', 'femur_proximal', 'femur_f10', 'tibia_t4', 'tibia_t10', 'tobillo']);
+const NATIVE_CENTER_RADIUS_PX = 3.8;
+const NATIVE_POINT_RADIUS_PX = 4.5;
+const NATIVE_ENDPOINT_RADIUS_PX = 3.8;
+const NATIVE_EDGE_TOLERANCE_PX = 9.0;
+const NATIVE_RADIUS_STEP_PX = 2.0;
 
 let selectedCircleKey = null;
 let resizing = null;
 let lastCircleTool = null;
 let radiusFrame = 0;
 let pendingRadius = null;
+let overlayScheduled = false;
 
-if (radiusSlider) radiusSlider.step = '0.25';
+// v3.0.21 RadiusControl uses an internal scale of 10 = 0.1 px resolution.
+if (radiusSlider) radiusSlider.step = '0.1';
 
 function language() {
   return document.documentElement.lang === 'en' ? 'en' : 'es';
@@ -22,8 +33,8 @@ function language() {
 
 function updateToolbarHelp() {
   if (!toolbarHelp) return;
-  toolbarHelp.dataset.es = 'Círculo: arrastra el centro para mover · arrastra el borde para cambiar radio · rueda sobre círculo: ajuste fino · colocar: cruz';
-  toolbarHelp.dataset.en = 'Circle: drag center to move · drag edge to resize · wheel over circle: fine adjustment · placement: crosshair';
+  toolbarHelp.dataset.es = 'Círculo: arrastra para mover · borde (±9 px): cambia radio · rueda: ±2 px · colocar: cruz';
+  toolbarHelp.dataset.en = 'Circle: drag to move · edge (±9 px): resize · wheel: ±2 px · placement: crosshair';
   toolbarHelp.textContent = toolbarHelp.dataset[language()];
 }
 
@@ -40,14 +51,11 @@ function placementMode() {
   const activeTool = document.querySelector('[data-tool].active');
   const calibrationActive = document.getElementById('calibrate-25')?.classList.contains('active');
   viewer?.classList.toggle('placement-mode', Boolean(activeTool || calibrationActive));
-  if (activeTool && circleForKey(activeTool.dataset.tool)) lastCircleTool = activeTool.dataset.tool;
 }
 
 const toolObserver = new MutationObserver(() => {
   const active = document.querySelector('[data-tool].active');
-  if (active && ['cabeza', 'femur_proximal', 'femur_f10', 'tibia_t4', 'tibia_t10', 'tobillo'].includes(active.dataset.tool)) {
-    lastCircleTool = active.dataset.tool;
-  }
+  if (active && CIRCLE_KEYS.has(active.dataset.tool)) lastCircleTool = active.dataset.tool;
   placementMode();
   if (!active && lastCircleTool) {
     const key = lastCircleTool;
@@ -90,6 +98,41 @@ function circleGeometry(circle) {
   return [cx, cy, radius].every(Number.isFinite) ? { cx, cy, radius } : null;
 }
 
+function classifyReferenceElements() {
+  if (!referenceLayer) return;
+  const scale = screenScale();
+
+  for (const line of referenceLayer.querySelectorAll('.reference-line')) {
+    if (!line.dataset.key) {
+      let sibling = line.nextElementSibling;
+      while (sibling && !sibling.dataset?.key) sibling = sibling.nextElementSibling;
+      if (sibling?.dataset?.key) line.dataset.key = sibling.dataset.key;
+    }
+  }
+
+  for (const handle of referenceLayer.querySelectorAll('.reference-handle[data-key]')) {
+    handle.classList.remove('native-circle-center', 'native-landmark-point', 'native-line-endpoint');
+    const key = handle.dataset.key;
+    const part = handle.dataset.part || '';
+    let screenRadius = NATIVE_ENDPOINT_RADIUS_PX;
+
+    if (handle.classList.contains('reference-point')) {
+      handle.classList.add('native-landmark-point');
+      screenRadius = NATIVE_POINT_RADIUS_PX;
+    } else if (part === 'point_1' || part === 'point_2') {
+      handle.classList.add('native-line-endpoint');
+      screenRadius = NATIVE_ENDPOINT_RADIUS_PX;
+    } else if (CIRCLE_KEYS.has(key)) {
+      handle.classList.add('native-circle-center');
+      screenRadius = NATIVE_CENTER_RADIUS_PX;
+    }
+
+    // Equivalent to QGraphicsItem::ItemIgnoresTransformations in v3.0.21:
+    // marker dimensions remain constant on screen at every zoom level.
+    handle.setAttribute('r', String(screenRadius / scale));
+  }
+}
+
 function drawSelectionBox() {
   referenceLayer?.querySelectorAll('.circle-selection-box').forEach((node) => node.remove());
   const circle = circleForKey(selectedCircleKey);
@@ -108,43 +151,35 @@ function drawSelectionBox() {
 function selectCircleVisual(key) {
   if (!circleForKey(key)) return;
   selectedCircleKey = key;
-  drawSelectionBox();
+  scheduleNativeOverlaySync();
 }
 
-let overlayScheduled = false;
-function scheduleSelectionBox() {
+function scheduleNativeOverlaySync() {
   if (overlayScheduled) return;
   overlayScheduled = true;
   requestAnimationFrame(() => {
     overlayScheduled = false;
+    classifyReferenceElements();
     drawSelectionBox();
   });
 }
 
 if (referenceLayer) {
-  new MutationObserver(scheduleSelectionBox).observe(referenceLayer, { childList: true });
+  new MutationObserver(scheduleNativeOverlaySync).observe(referenceLayer, { childList: true });
 }
-
-function syntheticRadiusWheel(target, increase) {
-  if (!target) return;
-  const event = new WheelEvent('wheel', {
-    bubbles: true,
-    cancelable: true,
-    deltaY: increase ? -100 : 100,
-    deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-  });
-  Object.defineProperty(event, '__kpaiRadiusSynthetic', { value: true });
-  target.dispatchEvent(event);
+if (stage) {
+  new MutationObserver(scheduleNativeOverlaySync).observe(stage, { attributes: true, attributeFilter: ['style'] });
 }
+window.addEventListener('resize', scheduleNativeOverlaySync);
 
 function applyRadius(value) {
   if (!radiusSlider || !Number.isFinite(value)) return;
-  const min = Math.max(2, Number(radiusSlider.min) || 2);
+  const min = Math.max(3, Number(radiusSlider.min) || 3);
   const max = Math.max(min, Number(radiusSlider.max) || value);
   const next = Math.max(min, Math.min(max, value));
-  radiusSlider.value = String(Math.round(next * 4) / 4);
+  radiusSlider.value = String(Math.round(next * 10) / 10);
   radiusSlider.dispatchEvent(new Event('input', { bubbles: true }));
-  scheduleSelectionBox();
+  scheduleNativeOverlaySync();
 }
 
 function scheduleRadius(value) {
@@ -172,7 +207,7 @@ function edgeDistance(event, circle) {
 function isNearCircleEdge(event, circle) {
   const data = edgeDistance(event, circle);
   if (!data) return false;
-  const tolerance = Math.max(2.25, 12 / screenScale());
+  const tolerance = NATIVE_EDGE_TOLERANCE_PX / screenScale();
   return Math.abs(data.distance - data.geometry.radius) <= tolerance;
 }
 
@@ -183,9 +218,8 @@ referenceLayer?.addEventListener('pointerdown', (event) => {
   if (key && circleForKey(key)) selectCircleVisual(key);
   if (!circle || !isNearCircleEdge(event, circle)) return;
 
-  // Do not stop this pointerdown: the base workbench receives it too, which
-  // selects the same circle internally. We only replace the subsequent drag
-  // motion with direct 1:1 radius editing.
+  // Base workbench receives pointerdown and selects this circle internally.
+  // We intercept only pointer movement to reproduce v3.0.21 direct 1:1 resize.
   resizing = { key: circle.dataset.key, pointerId: event.pointerId };
   viewer?.classList.add('circle-resizing');
 }, true);
@@ -211,45 +245,35 @@ function stopResize(event) {
   if (!resizing || (event.pointerId !== undefined && event.pointerId !== resizing.pointerId)) return;
   resizing = null;
   viewer?.classList.remove('circle-resizing');
-  scheduleSelectionBox();
+  scheduleNativeOverlaySync();
 }
 window.addEventListener('pointerup', stopResize);
 window.addEventListener('pointercancel', stopResize);
 
-// More responsive wheel/trackpad radius editing. Tiny trackpad deltas accumulate,
-// but each deliberate motion produces several native radius steps instead of
-// feeling delayed or heavy.
-const radiusWheelAccumulator = new Map();
+// The native app changes every circle by exactly ±2.0 image pixels for each
+// wheel event. The base web module has a width-dependent step; it runs first,
+// then this listener corrects the remainder so the total matches v3.0.21.
 viewer?.addEventListener('wheel', (event) => {
-  if (event.__kpaiRadiusSynthetic) return;
+  if (!event.deltaY) return;
   const key = event.target?.dataset?.key;
-  const circle = circleForKey(key);
-  if (!circle) return;
+  if (!CIRCLE_KEYS.has(key) || !circleForKey(key) || !radiusSlider) return;
 
-  event.preventDefault();
-  event.stopPropagation();
-  event.stopImmediatePropagation();
   selectCircleVisual(key);
-
-  const normalized = event.deltaMode === WheelEvent.DOM_DELTA_PIXEL ? event.deltaY : event.deltaY * 18;
-  let accumulated = (radiusWheelAccumulator.get(key) || 0) + normalized;
-  const direction = Math.sign(accumulated);
-  const threshold = 3;
-  let steps = Math.floor(Math.abs(accumulated) / threshold);
-  if (!steps && Math.abs(normalized) >= 1.5) steps = 1;
-  steps = Math.min(12, steps);
-  if (steps > 0) {
-    for (let index = 0; index < steps; index += 1) {
-      syntheticRadiusWheel(circleForKey(key), direction < 0);
-    }
-    accumulated -= direction * steps * threshold;
+  const direction = event.deltaY < 0 ? 1 : -1;
+  const imageWidth = Number(canvas?.width) || 0;
+  const baseStep = Math.max(0.6, Math.min(3, imageWidth / 1400));
+  const currentAfterBase = Number(radiusSlider.value);
+  if (Number.isFinite(currentAfterBase)) {
+    applyRadius(currentAfterBase + direction * (NATIVE_RADIUS_STEP_PX - baseStep));
   }
-  radiusWheelAccumulator.set(key, accumulated);
-  scheduleSelectionBox();
-}, { capture: true, passive: false });
+}, { passive: false });
 
 for (const button of document.querySelectorAll('[data-language]')) {
-  button.addEventListener('click', () => requestAnimationFrame(updateToolbarHelp));
+  button.addEventListener('click', () => requestAnimationFrame(() => {
+    updateToolbarHelp();
+    scheduleNativeOverlaySync();
+  }));
 }
 
 updateToolbarHelp();
+scheduleNativeOverlaySync();
