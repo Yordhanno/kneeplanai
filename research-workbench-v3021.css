@@ -1,0 +1,35 @@
+/* KneePlanAI Web Research — parity refinements with v3.0.21 */
+.case-toolbar{position:relative;z-index:12}
+.workbench-grid{position:relative;z-index:1}
+.results-panel,.references-panel{position:relative;top:auto}
+.workbench-header{z-index:20}
+
+.viewer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.viewer-actions button{min-width:0;padding-inline:6px}
+#calibrate-25.active{border-color:#f5c451;color:#f5c451;background:rgba(245,196,81,.09)}
+.calibration-status{margin:8px 0 0;padding:8px 9px;border:1px solid #23343e;border-radius:8px;color:#7f929d;font-size:.58rem;line-height:1.4;background:#081117}
+.calibration-status.complete{border-color:rgba(245,196,81,.45);color:#e9cf87;background:rgba(116,86,22,.12)}
+.calibration-status.dicom{border-color:rgba(42,213,182,.35);color:#83cfc2}
+
+.reference-circle{cursor:move}
+.reference-label{font-weight:700;stroke-width:2.5;opacity:.88}
+.reference-label.compact{font-weight:700;opacity:.78}
+.axis-local-tibia-guide{stroke:#84cc16;opacity:.72}
+.calibration-line{stroke:#f5c451;stroke-width:1.8;vector-effect:non-scaling-stroke;opacity:.95}
+.calibration-label{fill:#f5c451;font:700 12px Inter,sans-serif;paint-order:stroke;stroke:#061016;stroke-width:2;pointer-events:none}
+
+.status-card.complete p{color:#d6e4e7;font-weight:650}
+.viewer-toolbar p{white-space:normal;text-align:right;line-height:1.25;max-width:520px}
+
+@media(max-width:1270px){
+  .viewer-actions{grid-template-columns:1fr 1fr}
+  #calibrate-25{grid-column:1/-1}
+}
+@media(max-width:1023px){
+  .case-toolbar{z-index:12}
+  .viewer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #calibrate-25{grid-column:auto}
+}
+@media(max-width:560px){
+  .viewer-actions{grid-template-columns:1fr}
+}
