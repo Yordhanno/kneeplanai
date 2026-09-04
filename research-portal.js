@@ -1,10 +1,9 @@
-const portalState = { language: 'es', user: null, counts: { validations: 0, reports: 0 } };
+const portalState = { language: 'es', user: null, counts: { results: 0, reports: 0 } };
 
 const portalCopy = {
   es: {
     title: 'KneePlanAI Research | Portal privado',
     roles: { validator: 'Validador externo', tester: 'Tester', both: 'Validador y tester' },
-    savedValidation: 'La validación fue registrada correctamente.',
     savedReport: 'La incidencia fue registrada correctamente.',
     errors: {
       authentication_required: 'No se pudo verificar tu sesión. Vuelve a ingresar mediante tu correo autorizado.',
@@ -20,7 +19,6 @@ const portalCopy = {
   en: {
     title: 'KneePlanAI Research | Private portal',
     roles: { validator: 'External validator', tester: 'Tester', both: 'Validator and tester' },
-    savedValidation: 'The validation was recorded successfully.',
     savedReport: 'The issue was recorded successfully.',
     errors: {
       authentication_required: 'Your session could not be verified. Sign in again with your authorized email.',
@@ -71,9 +69,9 @@ function renderProfile() {
   document.getElementById('portal-kneeplan-id').textContent = user.kneeplan_id;
   document.getElementById('portal-profile').textContent = [user.full_name, user.institution, user.country].filter(Boolean).join(' · ');
   document.getElementById('portal-role').textContent = portalCopy[portalState.language].roles[user.role] || user.role;
-  document.getElementById('portal-validations').textContent = String(portalState.counts.validations);
+  document.getElementById('portal-results').textContent = String(portalState.counts.results || 0);
   document.getElementById('portal-reports').textContent = String(portalState.counts.reports);
-  document.getElementById('validation-section').classList.toggle('portal-hidden', !['validator', 'both'].includes(user.role));
+  document.getElementById('validation-section').classList.remove('portal-hidden');
   document.getElementById('report-section').classList.toggle('portal-hidden', !['tester', 'both'].includes(user.role));
 }
 
@@ -133,11 +131,6 @@ async function submitPortalForm(form, endpoint, successKey, countKey) {
     button.disabled = false;
   }
 }
-
-document.getElementById('validation-form')?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  submitPortalForm(event.currentTarget, '/api/research/validation', 'savedValidation', 'validations');
-});
 
 document.getElementById('report-form')?.addEventListener('submit', (event) => {
   event.preventDefault();

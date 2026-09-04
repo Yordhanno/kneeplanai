@@ -29,10 +29,11 @@
     <div id="admin-error" class="portal-alert error"></div>
     <div id="admin-message" class="portal-alert"></div>
 
-    <section class="portal-stats">
+    <section class="portal-stats admin-stats">
       <div class="portal-stat"><span data-es="INVESTIGADORES" data-en="RESEARCHERS">INVESTIGADORES</span><strong id="admin-total">0</strong></div>
       <div class="portal-stat"><span data-es="ACCESOS ACTIVOS" data-en="ACTIVE ACCESS">ACCESOS ACTIVOS</span><strong id="admin-active">0</strong></div>
       <div class="portal-stat"><span data-es="DISPOSITIVOS VINCULADOS" data-en="LINKED DEVICES">DISPOSITIVOS VINCULADOS</span><strong id="admin-devices">0</strong></div>
+      <div class="portal-stat"><span data-es="RESULTADOS GUARDADOS" data-en="SAVED RESULTS">RESULTADOS GUARDADOS</span><strong id="admin-results">0</strong></div>
     </section>
 
     <div class="admin-layout">
@@ -50,10 +51,15 @@
       </section>
 
       <section class="portal-section admin-users">
-        <div class="admin-users-header"><h2 data-es="Accesos creados" data-en="Created access">Accesos creados</h2><div class="admin-export"><a href="/api/research/admin/validation.csv" data-es="Exportar validaciones CSV" data-en="Export validations CSV">Exportar validaciones CSV</a><a href="/api/research/admin/reports.csv" data-es="Exportar incidencias CSV" data-en="Export issues CSV">Exportar incidencias CSV</a></div></div>
+        <div class="admin-users-header"><h2 data-es="Accesos creados" data-en="Created access">Accesos creados</h2></div>
         <div id="admin-list" class="admin-list"><p class="admin-empty" data-es="Cargando accesos…" data-en="Loading access…">Cargando accesos…</p></div>
       </section>
     </div>
+
+    <section class="portal-section admin-users admin-results-section">
+      <div class="admin-users-header"><div><h2 data-es="Resultados automáticos" data-en="Automatic results">Resultados automáticos</h2><p data-es="Cada caso finalizado desde KneePlanAI Web aparece aquí y queda disponible en ambos formatos." data-en="Every case finished in KneePlanAI Web appears here and is available in both formats.">Cada caso finalizado desde KneePlanAI Web aparece aquí y queda disponible en ambos formatos.</p></div><div class="admin-export"><a href="/api/research/admin/results.json" data-es="Descargar JSON" data-en="Download JSON">Descargar JSON</a><a href="/api/research/admin/results.csv" data-es="Descargar CSV" data-en="Download CSV">Descargar CSV</a><a href="/api/research/admin/reports.csv" data-es="Incidencias CSV" data-en="Issues CSV">Incidencias CSV</a></div></div>
+      <div id="admin-results-list" class="admin-list"><p class="admin-empty" data-es="Cargando resultados…" data-en="Loading results…">Cargando resultados…</p></div>
+    </section>
   </main>
   <script src="/research-admin.js"></script>
 </body>

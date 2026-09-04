@@ -1,4 +1,4 @@
-const adminState = { language: 'es', users: [] };
+const adminState = { language: 'es', users: [], resultCount: 0, recentResults: [] };
 
 const adminCopy = {
   es: {
@@ -10,7 +10,7 @@ const adminCopy = {
     confirmActivate: '¿Confirmas que deseas reactivar este acceso?',
     confirmReset: '¿Confirmas el restablecimiento? El investigador podrá vincular una computadora nueva.',
     created: 'La identidad fue aprobada y creada correctamente.', changed: 'El acceso fue actualizado.', resetDone: 'El dispositivo fue restablecido.',
-    empty: 'Aún no hay accesos creados.', error: 'No fue posible completar la operación.', forbidden: 'Tu correo no está autorizado para administrar este portal.', duplicate: 'El correo real o la identidad @kneeplanai.com ya existe.'
+    empty: 'Aún no hay accesos creados.', emptyResults: 'Aún no hay resultados guardados.', updated: 'Actualizado', error: 'No fue posible completar la operación.', forbidden: 'Tu correo no está autorizado para administrar este portal.', duplicate: 'El correo real o la identidad @kneeplanai.com ya existe.'
   },
   en: {
     title: 'KneePlanAI Research | Administration',
@@ -21,7 +21,7 @@ const adminCopy = {
     confirmActivate: 'Do you confirm that you want to reactivate this access?',
     confirmReset: 'Confirm the reset? The researcher will be able to link a new computer.',
     created: 'The identity was approved and created successfully.', changed: 'Access was updated.', resetDone: 'The device was reset.',
-    empty: 'No access has been created yet.', error: 'The operation could not be completed.', forbidden: 'Your email is not authorized to administer this portal.', duplicate: 'The real email or @kneeplanai.com identity already exists.'
+    empty: 'No access has been created yet.', emptyResults: 'No results have been saved yet.', updated: 'Updated', error: 'The operation could not be completed.', forbidden: 'Your email is not authorized to administer this portal.', duplicate: 'The real email or @kneeplanai.com identity already exists.'
   }
 };
 
@@ -39,7 +39,30 @@ function setAdminLanguage(language, persist = true) {
   document.querySelectorAll('[data-es][data-en]').forEach((element) => { element.textContent = element.dataset[lang]; });
   document.querySelectorAll('[data-language]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === lang)));
   renderUsers();
+  renderResults();
   if (persist) { try { localStorage.setItem('kneeplanai-language', lang); } catch (_) {} }
+}
+
+function renderResults() {
+  const list = document.getElementById('admin-results-list');
+  if (!list) return;
+  list.replaceChildren();
+  const copy = adminCopy[adminState.language];
+  document.getElementById('admin-results').textContent = String(adminState.resultCount);
+  if (!adminState.recentResults.length) {
+    const empty = document.createElement('p'); empty.className = 'admin-empty'; empty.textContent = copy.emptyResults; list.append(empty); return;
+  }
+  for (const result of adminState.recentResults) {
+    const row = document.createElement('article'); row.className = 'admin-result';
+    const identity = document.createElement('div');
+    const caseCode = document.createElement('strong'); caseCode.textContent = result.case_code;
+    const meta = document.createElement('small'); meta.textContent = [result.kneeplan_id, result.side, result.session, result.method].filter(Boolean).join(' · ');
+    identity.append(caseCode, meta);
+    const measures = document.createElement('div'); measures.className = 'admin-result-measures';
+    measures.textContent = `HKA ${Number(result.hka_signed).toFixed(2)}° · mLDFA ${Number(result.mldfa).toFixed(2)}° · MPTA ${Number(result.mpta).toFixed(2)}° · CPAK ${result.cpak}`;
+    const date = document.createElement('small'); date.className = 'admin-result-date'; date.textContent = `${copy.updated}: ${result.updated_at || result.created_at}`;
+    row.append(identity, measures, date); list.append(row);
+  }
 }
 
 document.querySelectorAll('[data-language]').forEach((button) => button.addEventListener('click', () => setAdminLanguage(button.dataset.language)));
@@ -99,6 +122,17 @@ async function loadUsers() {
   }
 }
 
+async function loadSummary() {
+  try {
+    const payload = await api('/api/research/admin/summary');
+    adminState.resultCount = Number(payload.counts?.results || 0);
+    adminState.recentResults = payload.recent || [];
+    renderResults();
+  } catch (error) {
+    showAdminMessage(error.status === 403 ? adminCopy[adminState.language].forbidden : adminCopy[adminState.language].error, 'error');
+  }
+}
+
 async function changeStatus(user) {
   const copy = adminCopy[adminState.language];
   const next = user.status === 'approved' ? 'suspended' : 'approved';
@@ -133,4 +167,4 @@ document.getElementById('admin-user-form')?.addEventListener('submit', async (ev
 });
 
 setAdminLanguage(detectAdminLanguage(), false);
-loadUsers();
+Promise.all([loadUsers(), loadSummary()]);

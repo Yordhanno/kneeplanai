@@ -1,7 +1,16 @@
+import { calculateMeasurements, normalizeGeometry, roundMeasurements } from './research-math.js';
+
 const DEVICE_COOKIE = '__Host-kpai-device';
 const PORTAL_HOST = 'research.kneeplanai.com';
 const METRICS = ['hka', 'mldfa', 'mpta', 'jlca', 'aldfa', 'ama', 'afta', 'ahka', 'jlo'];
 const CPAK_TYPES = new Set(['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']);
+const RUN_MEASUREMENTS = ['HKA_interno', 'HKA_desviacion', 'HKA_firmado', 'mLDFA', 'MPTA', 'JLCA', 'JLCA_firmado', 'aLDFA', 'AMA', 'Valgo_femoral', 'aHKA', 'JLO_CPAK', 'aFTA', 'aFTA_magnitud'];
+const RUN_GEOMETRY = {
+  cabeza: 'circle', femur_proximal: 'circle', femur_distal: 'point', femur_f10: 'circle',
+  tibia_proximal: 'point', tibia_t4: 'circle', tibia_t10: 'circle', tobillo: 'circle',
+  linea_femoral: 'line', linea_tibial: 'line',
+};
+const RUN_QC = ['flexion_aparente', 'malrotacion_sospechada', 'osteofitos_marginales', 'attrition', 'landmark_ambiguo', 'dificultad_tecnica_marcada'];
 let researchSchemaPromise = null;
 
 const RESEARCH_SCHEMA_SQL = `
@@ -46,6 +55,43 @@ CREATE TABLE IF NOT EXISTS validation_results (
 CREATE INDEX IF NOT EXISTS idx_validation_researcher ON validation_results(researcher_id);
 CREATE INDEX IF NOT EXISTS idx_validation_case ON validation_results(case_code);
 CREATE INDEX IF NOT EXISTS idx_validation_created ON validation_results(created_at);
+CREATE TABLE IF NOT EXISTS research_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  researcher_id INTEGER NOT NULL,
+  case_code TEXT NOT NULL,
+  center_code TEXT NOT NULL DEFAULT '',
+  side TEXT NOT NULL CHECK (side IN ('derecha', 'izquierda')),
+  mode TEXT NOT NULL CHECK (mode IN ('manual_cegado', 'validacion_externa', 'desarrollo_oai')),
+  method TEXT NOT NULL CHECK (method IN ('manual_web', 'autodeteccion_web', 'manual_corregido_web')),
+  session TEXT NOT NULL CHECK (session IN ('inicial', 'repeticion_4_semanas')),
+  image_quality TEXT NOT NULL DEFAULT '' CHECK (image_quality IN ('', 'adequate', 'limited', 'poor')),
+  app_version TEXT NOT NULL,
+  schema_version TEXT NOT NULL,
+  image_sha256 TEXT NOT NULL,
+  filename_sha256 TEXT NOT NULL DEFAULT '',
+  hka_internal REAL,
+  hka_signed REAL,
+  mldfa REAL,
+  mpta REAL,
+  jlca REAL,
+  jlca_signed REAL,
+  aldfa REAL,
+  ama REAL,
+  afta REAL,
+  ahka REAL,
+  jlo REAL,
+  cpak TEXT,
+  manual_seconds REAL,
+  review_confirmed INTEGER NOT NULL DEFAULT 0,
+  raw_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (researcher_id, case_code, side, session, method),
+  FOREIGN KEY (researcher_id) REFERENCES researchers(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_runs_researcher ON research_runs(researcher_id);
+CREATE INDEX IF NOT EXISTS idx_runs_case ON research_runs(case_code);
+CREATE INDEX IF NOT EXISTS idx_runs_created ON research_runs(created_at);
 CREATE TABLE IF NOT EXISTS tester_reports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   researcher_id INTEGER NOT NULL,
@@ -93,8 +139,11 @@ export default {
       if (url.pathname === '/' || url.pathname === '/index.html') {
         return serveAsset(request, env, '/research-portal.html');
       }
-      if (url.pathname === '/admin' || url.pathname === '/admin/') {
+      if (url.pathname === '/admin' || url.pathname === '/admin/' || url.pathname === '/research-admin' || url.pathname === '/research-admin/') {
         return serveAsset(request, env, '/research-admin.html');
+      }
+      if (url.pathname === '/workbench' || url.pathname === '/workbench/') {
+        return serveAsset(request, env, '/research-workbench.html');
       }
     }
 
@@ -132,16 +181,101 @@ async function handleResearchApi(request, env, url) {
       const counts = await env.RESEARCH_DB.prepare(
         `SELECT
           (SELECT COUNT(*) FROM validation_results WHERE researcher_id = ?) AS validations,
-          (SELECT COUNT(*) FROM tester_reports WHERE researcher_id = ?) AS reports`
-      ).bind(context.user.id, context.user.id).first();
+          (SELECT COUNT(*) FROM tester_reports WHERE researcher_id = ?) AS reports,
+          (SELECT COUNT(*) FROM research_runs WHERE researcher_id = ?) AS results`
+      ).bind(context.user.id, context.user.id, context.user.id).first();
 
       return json({
         user: publicResearcher(context.user),
         counts: {
           validations: Number(counts?.validations || 0),
           reports: Number(counts?.reports || 0),
+          results: Number(counts?.results || 0),
         },
       }, 200, context.cookie);
+    }
+
+    if (request.method === 'POST' && path === '/api/research/results') {
+      const originError = requireSameOrigin(request, url);
+      if (originError) return originError;
+      const context = await requireResearcher(request, env, true);
+      if (context.response) return context.response;
+
+      const payload = await readJson(request);
+      const runError = validateResearchRun(payload);
+      if (runError) return json({ error: runError }, 400, context.cookie);
+      const canonical = canonicalResearchRun(payload, context.user);
+      const rawJson = JSON.stringify(canonical);
+      if (rawJson.length > 196608) return json({ error: 'result_too_large' }, 413, context.cookie);
+      const measurements = canonical.measurements;
+
+      await env.RESEARCH_DB.prepare(
+        `INSERT INTO research_runs (
+          researcher_id, case_code, center_code, side, mode, method, session, image_quality,
+          app_version, schema_version, image_sha256, filename_sha256,
+          hka_internal, hka_signed, mldfa, mpta, jlca, jlca_signed, aldfa, ama,
+          afta, ahka, jlo, cpak, manual_seconds, review_confirmed, raw_json
+        ) VALUES (${Array(27).fill('?').join(', ')})
+        ON CONFLICT(researcher_id, case_code, side, session, method) DO UPDATE SET
+          center_code = excluded.center_code,
+          mode = excluded.mode,
+          image_quality = excluded.image_quality,
+          app_version = excluded.app_version,
+          schema_version = excluded.schema_version,
+          image_sha256 = excluded.image_sha256,
+          filename_sha256 = excluded.filename_sha256,
+          hka_internal = excluded.hka_internal,
+          hka_signed = excluded.hka_signed,
+          mldfa = excluded.mldfa,
+          mpta = excluded.mpta,
+          jlca = excluded.jlca,
+          jlca_signed = excluded.jlca_signed,
+          aldfa = excluded.aldfa,
+          ama = excluded.ama,
+          afta = excluded.afta,
+          ahka = excluded.ahka,
+          jlo = excluded.jlo,
+          cpak = excluded.cpak,
+          manual_seconds = excluded.manual_seconds,
+          review_confirmed = excluded.review_confirmed,
+          raw_json = excluded.raw_json,
+          updated_at = CURRENT_TIMESTAMP`
+      ).bind(
+        context.user.id,
+        canonical.case.case_code,
+        canonical.case.center_code,
+        canonical.case.side,
+        canonical.mode,
+        canonical.method,
+        canonical.case.session,
+        canonical.case.image_quality,
+        canonical.app_version,
+        canonical.schema_version,
+        canonical.source.image_sha256,
+        canonical.source.filename_sha256,
+        measurements.HKA_interno,
+        measurements.HKA_firmado,
+        measurements.mLDFA,
+        measurements.MPTA,
+        measurements.JLCA,
+        measurements.JLCA_firmado,
+        measurements.aLDFA,
+        measurements.AMA,
+        measurements.aFTA,
+        measurements.aHKA,
+        measurements.JLO_CPAK,
+        measurements.CPAK_tipo,
+        canonical.timing.manual_s,
+        1,
+        rawJson,
+      ).run();
+
+      const saved = await env.RESEARCH_DB.prepare(
+        `SELECT id, created_at, updated_at FROM research_runs
+         WHERE researcher_id = ? AND case_code = ? AND side = ? AND session = ? AND method = ?`
+      ).bind(context.user.id, canonical.case.case_code, canonical.case.side, canonical.case.session, canonical.method).first();
+      await audit(env, context.user.email, 'research_result_saved', saved?.id || null, canonical.case.case_code);
+      return json({ ok: true, id: saved?.id || null, created_at: saved?.created_at, updated_at: saved?.updated_at }, 201, context.cookie);
     }
 
     if (request.method === 'POST' && path === '/api/research/validation') {
@@ -247,6 +381,25 @@ async function handleAdminApi(request, env, url) {
     return json({ users: results || [] });
   }
 
+  if (request.method === 'GET' && path === '/api/research/admin/summary') {
+    const totals = await env.RESEARCH_DB.prepare(
+      `SELECT
+        (SELECT COUNT(*) FROM research_runs) AS results,
+        (SELECT COUNT(*) FROM tester_reports) AS reports`
+    ).first();
+    const { results } = await env.RESEARCH_DB.prepare(
+      `SELECT rr.id, r.kneeplan_id, r.role, rr.case_code, rr.side, rr.method,
+        rr.session, rr.hka_signed, rr.mldfa, rr.mpta, rr.jlca_signed,
+        rr.ahka, rr.jlo, rr.cpak, rr.created_at, rr.updated_at
+       FROM research_runs rr JOIN researchers r ON r.id = rr.researcher_id
+       ORDER BY rr.updated_at DESC LIMIT 50`
+    ).all();
+    return json({
+      counts: { results: Number(totals?.results || 0), reports: Number(totals?.reports || 0) },
+      recent: results || [],
+    });
+  }
+
   if (request.method === 'POST' && path === '/api/research/admin/users') {
     const originError = requireSameOrigin(request, url);
     if (originError) return originError;
@@ -314,6 +467,46 @@ async function handleAdminApi(request, env, url) {
        ORDER BY v.created_at DESC`
     ).all();
     return csvResponse(results || [], 'kneeplanai-validation-results.csv');
+  }
+
+  if (request.method === 'GET' && path === '/api/research/admin/results.csv') {
+    const { results } = await env.RESEARCH_DB.prepare(
+      `SELECT rr.id, r.kneeplan_id, r.role, rr.case_code, rr.center_code, rr.side,
+        rr.mode, rr.method, rr.session, rr.image_quality, rr.app_version, rr.schema_version,
+        rr.image_sha256, rr.filename_sha256, rr.hka_internal, rr.hka_signed,
+        rr.mldfa, rr.mpta, rr.jlca, rr.jlca_signed, rr.aldfa, rr.ama, rr.afta,
+        rr.ahka, rr.jlo, rr.cpak, rr.manual_seconds, rr.review_confirmed,
+        rr.created_at, rr.updated_at
+       FROM research_runs rr JOIN researchers r ON r.id = rr.researcher_id
+       ORDER BY rr.updated_at DESC`
+    ).all();
+    return csvResponse(results || [], 'kneeplanai-research-results.csv');
+  }
+
+  if (request.method === 'GET' && path === '/api/research/admin/results.json') {
+    const { results } = await env.RESEARCH_DB.prepare(
+      `SELECT rr.id, r.kneeplan_id, r.role, rr.created_at, rr.updated_at, rr.raw_json
+       FROM research_runs rr JOIN researchers r ON r.id = rr.researcher_id
+       ORDER BY rr.updated_at DESC`
+    ).all();
+    const exported = (results || []).map((row) => {
+      let result = null;
+      try { result = JSON.parse(row.raw_json); } catch (_) {}
+      return {
+        id: row.id,
+        kneeplan_id: row.kneeplan_id,
+        role: row.role,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        result,
+      };
+    });
+    return jsonDownload({
+      schema_version: 'kpai-research-export/1',
+      exported_at: new Date().toISOString(),
+      count: exported.length,
+      results: exported,
+    }, 'kneeplanai-research-results.json');
   }
 
   if (request.method === 'GET' && path === '/api/research/admin/reports.csv') {
@@ -416,6 +609,126 @@ function validateValidation(payload) {
   return null;
 }
 
+function validPoint(point) {
+  return Array.isArray(point) && point.length === 2
+    && point.every((value) => Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 10000);
+}
+
+function validateResearchRun(payload) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return 'invalid_payload';
+  if (payload.schema_version !== 'kpai-web-result/1') return 'invalid_schema_version';
+  if (clean(payload.app_version, 80).length < 3) return 'invalid_app_version';
+  if (!/^[A-Za-z0-9._-]{2,64}$/.test(clean(payload.case_code, 64))) return 'invalid_case_code';
+  if (!['derecha', 'izquierda'].includes(payload.side)) return 'invalid_side';
+  if (!['manual_cegado', 'validacion_externa', 'desarrollo_oai'].includes(payload.mode)) return 'invalid_mode';
+  if (!['manual_web', 'autodeteccion_web', 'manual_corregido_web'].includes(payload.method)) return 'invalid_method';
+  if (!['inicial', 'repeticion_4_semanas'].includes(payload.session)) return 'invalid_session';
+  if (!['', 'adequate', 'limited', 'poor'].includes(clean(payload.image_quality, 12))) return 'invalid_image_quality';
+  if (!/^[a-f0-9]{64}$/i.test(clean(payload.image_sha256, 64))) return 'invalid_image_hash';
+  if (!/^[a-f0-9]{64}$/i.test(clean(payload.filename_sha256, 64))) return 'invalid_filename_hash';
+  if (payload.review_confirmed !== true) return 'review_confirmation_required';
+
+  if (!payload.geometry || typeof payload.geometry !== 'object' || Array.isArray(payload.geometry)) return 'invalid_geometry';
+  for (const [key, type] of Object.entries(RUN_GEOMETRY)) {
+    const item = payload.geometry[key];
+    if (!item || item.type !== type) return `invalid_geometry_${key}`;
+    if (type === 'circle') {
+      if (!validPoint(item.center) || !Number.isFinite(Number(item.radius)) || Number(item.radius) < 1 || Number(item.radius) > 2000) return `invalid_geometry_${key}`;
+    } else if (type === 'point') {
+      if (!validPoint(item.position)) return `invalid_geometry_${key}`;
+    } else if (!validPoint(item.point_1) || !validPoint(item.point_2)) {
+      return `invalid_geometry_${key}`;
+    }
+  }
+
+  if (!payload.measurements || typeof payload.measurements !== 'object' || Array.isArray(payload.measurements)) return 'invalid_measurements';
+  let recalculated;
+  try {
+    recalculated = roundMeasurements(calculateMeasurements(normalizeGeometry(payload.geometry, payload.side), payload.side));
+  } catch (_) {
+    return 'invalid_geometry_calculation';
+  }
+  for (const key of RUN_MEASUREMENTS) {
+    const number = Number(payload.measurements[key]);
+    if (!Number.isFinite(number) || number < -360 || number > 360) return `invalid_measurement_${key}`;
+    if (Math.abs(number - recalculated[key]) > 0.011) return `measurement_mismatch_${key}`;
+  }
+  if (!CPAK_TYPES.has(clean(payload.measurements.CPAK_tipo, 4).toUpperCase()) || !payload.measurements.CPAK_tipo) return 'invalid_measurement_CPAK_tipo';
+  if (!['varo', 'valgo', 'neutro'].includes(clean(payload.measurements.alineacion, 12).toLowerCase())) return 'invalid_measurement_alignment';
+  if (!['varo', 'valgo', 'neutro'].includes(clean(payload.measurements.aFTA_direccion, 12).toLowerCase())) return 'invalid_measurement_afta_direction';
+  const seconds = Number(payload.timing?.manual_s);
+  if (!Number.isFinite(seconds) || seconds < 0 || seconds > 86400) return 'invalid_manual_duration';
+  return null;
+}
+
+function canonicalResearchRun(payload, user) {
+  const geometry = {};
+  for (const [key, type] of Object.entries(RUN_GEOMETRY)) {
+    const item = payload.geometry[key];
+    if (type === 'circle') geometry[key] = { type, center: item.center.map(Number), radius: Number(item.radius) };
+    else if (type === 'point') geometry[key] = { type, position: item.position.map(Number) };
+    else geometry[key] = { type, point_1: item.point_1.map(Number), point_2: item.point_2.map(Number) };
+  }
+
+  const normalizedGeometry = normalizeGeometry(geometry, payload.side);
+  const measurements = roundMeasurements(calculateMeasurements(normalizedGeometry, payload.side));
+
+  const technical = payload.technical && typeof payload.technical === 'object' ? payload.technical : {};
+  const cleanNumber = (value, minimum = 0, maximum = 100000) => {
+    const number = Number(value);
+    return Number.isFinite(number) && number >= minimum && number <= maximum ? number : null;
+  };
+  const spacing = (value) => Array.isArray(value) && value.length === 2
+    ? value.map((item) => cleanNumber(item, 0, 100)).filter((item) => item !== null)
+    : [];
+  const pixelSpacing = spacing(technical.pixel_spacing_mm);
+  const renderedSpacing = spacing(technical.rendered_pixel_spacing_mm);
+  const qc = {};
+  for (const key of RUN_QC) qc[key] = payload.qc?.[key] === true;
+
+  return {
+    schema_version: 'kpai-web-result/1',
+    app_version: clean(payload.app_version, 80),
+    saved_at: new Date().toISOString(),
+    participant: { kneeplan_id: user.kneeplan_id, role: user.role },
+    case: {
+      case_code: clean(payload.case_code, 64),
+      center_code: clean(payload.center_code, 80),
+      side: payload.side,
+      session: payload.session,
+      image_quality: clean(payload.image_quality, 12),
+    },
+    mode: payload.mode,
+    method: payload.method,
+    source: {
+      image_sha256: clean(payload.image_sha256, 64).toLowerCase(),
+      filename_sha256: clean(payload.filename_sha256, 64).toLowerCase(),
+      radiograph_uploaded: false,
+    },
+    geometry: normalizedGeometry,
+    measurements,
+    technical: {
+      format: clean(technical.format, 40),
+      rows: cleanNumber(technical.rows),
+      columns: cleanNumber(technical.columns),
+      rendered_rows: cleanNumber(technical.rendered_rows, 0, 10000),
+      rendered_columns: cleanNumber(technical.rendered_columns, 0, 10000),
+      pixel_spacing_mm: pixelSpacing.length === 2 ? pixelSpacing : null,
+      rendered_pixel_spacing_mm: renderedSpacing.length === 2 ? renderedSpacing : null,
+      calibration_source: clean(technical.calibration_source, 40),
+      manufacturer: clean(technical.manufacturer, 80),
+      model: clean(technical.model, 80),
+      photometric: clean(technical.photometric, 24),
+      bits_stored: cleanNumber(technical.bits_stored, 0, 64),
+      transfer_syntax: clean(technical.transfer_syntax, 80),
+    },
+    timing: { manual_s: Number(payload.timing.manual_s) },
+    qc,
+    review_confirmed: true,
+    server_verification: { recalculated_from_geometry: true },
+  };
+}
+
 function validateReport(payload) {
   if (!payload || typeof payload !== 'object') return 'invalid_payload';
   if (!['workflow', 'measurement', 'report', 'dicom', 'interface', 'performance', 'other'].includes(payload.category)) return 'invalid_category';
@@ -487,6 +800,17 @@ function json(payload, status = 200, cookie = null) {
   });
   if (cookie) headers.append('set-cookie', cookie);
   return new Response(JSON.stringify(payload), { status, headers });
+}
+
+function jsonDownload(payload, filename) {
+  return new Response(JSON.stringify(payload, null, 2), {
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'content-disposition': `attachment; filename="${filename}"`,
+      'cache-control': 'no-store',
+      'x-content-type-options': 'nosniff',
+    },
+  });
 }
 
 function csvResponse(rows, filename) {

@@ -35,7 +35,7 @@
         <div>
           <p class="kicker" data-es="PORTAL PRIVADO DE INVESTIGACIÓN" data-en="PRIVATE RESEARCH PORTAL">PORTAL PRIVADO DE INVESTIGACIÓN</p>
           <h1 data-es="Validación coordinada. Resultados trazables." data-en="Coordinated validation. Traceable results.">Validación coordinada. Resultados trazables.</h1>
-          <p data-es="Registra resultados de validación o incidencias de prueba utilizando únicamente códigos de caso desidentificados." data-en="Record validation results or testing issues using de-identified case codes only.">Registra resultados de validación o incidencias de prueba utilizando únicamente códigos de caso desidentificados.</p>
+          <p data-es="Abre el programa, mide el caso desidentificado y finalízalo. Los resultados se calculan y guardan automáticamente, sin transcribir valores." data-en="Open the program, measure the de-identified case, and finish it. Results are calculated and saved automatically, without transcribing values.">Abre el programa, mide el caso desidentificado y finalízalo. Los resultados se calculan y guardan automáticamente, sin transcribir valores.</p>
         </div>
         <aside class="portal-identity"><span data-es="IDENTIDAD ASIGNADA" data-en="ASSIGNED IDENTITY">IDENTIDAD ASIGNADA</span><strong id="portal-kneeplan-id">—</strong><small id="portal-profile">—</small></aside>
       </section>
@@ -44,36 +44,14 @@
 
       <section class="portal-stats">
         <div class="portal-stat"><span data-es="ROL" data-en="ROLE">ROL</span><strong id="portal-role">—</strong></div>
-        <div class="portal-stat"><span data-es="VALIDACIONES ENVIADAS" data-en="VALIDATIONS SUBMITTED">VALIDACIONES ENVIADAS</span><strong id="portal-validations">0</strong></div>
+        <div class="portal-stat"><span data-es="RESULTADOS GUARDADOS" data-en="SAVED RESULTS">RESULTADOS GUARDADOS</span><strong id="portal-results">0</strong></div>
         <div class="portal-stat"><span data-es="INCIDENCIAS ENVIADAS" data-en="REPORTS SUBMITTED">INCIDENCIAS ENVIADAS</span><strong id="portal-reports">0</strong></div>
       </section>
 
       <section id="validation-section" class="portal-section portal-hidden">
-        <div class="portal-section-header"><div><span class="kicker" data-es="VALIDADOR EXTERNO" data-en="EXTERNAL VALIDATOR">VALIDADOR EXTERNO</span><h2 data-es="Registrar una validación" data-en="Record a validation">Registrar una validación</h2><p data-es="Compara la referencia experta con el resultado de KneePlanAI." data-en="Compare the expert reference with the KneePlanAI result.">Compara la referencia experta con el resultado de KneePlanAI.</p></div><span class="portal-badge" data-es="SIN DATOS DEL PACIENTE" data-en="NO PATIENT DATA">SIN DATOS DEL PACIENTE</span></div>
-        <form id="validation-form" class="portal-form">
-          <label><span data-es="Código de caso desidentificado" data-en="De-identified case code">Código de caso desidentificado</span><input name="case_code" required pattern="[A-Za-z0-9._-]{2,64}" maxlength="64" placeholder="KPAI-001" /></label>
-          <label><span data-es="Versión de la aplicación" data-en="App version">Versión de la aplicación</span><input name="app_version" maxlength="30" placeholder="4.0.2" /></label>
-          <label><span data-es="Calidad de imagen" data-en="Image quality">Calidad de imagen</span><select name="image_quality"><option value="" data-es="No especificada" data-en="Not specified">No especificada</option><option value="adequate" data-es="Adecuada" data-en="Adequate">Adecuada</option><option value="limited" data-es="Limitada" data-en="Limited">Limitada</option><option value="poor" data-es="Deficiente" data-en="Poor">Deficiente</option></select></label>
-          <label><span data-es="Tiempo de análisis (segundos)" data-en="Analysis time (seconds)">Tiempo de análisis (segundos)</span><input name="analysis_duration_seconds" type="number" min="0" max="86400" step="1" /></label>
-          <div class="measurement-entry">
-            <table><thead><tr><th data-es="PARÁMETRO" data-en="PARAMETER">PARÁMETRO</th><th data-es="REFERENCIA EXPERTA" data-en="EXPERT REFERENCE">REFERENCIA EXPERTA</th><th>KNEEPLANAI</th></tr></thead><tbody>
-              <tr><td>HKA</td><td><input name="hka_reference" type="number" step="0.01" /></td><td><input name="hka_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>mLDFA</td><td><input name="mldfa_reference" type="number" step="0.01" /></td><td><input name="mldfa_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>MPTA</td><td><input name="mpta_reference" type="number" step="0.01" /></td><td><input name="mpta_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>JLCA</td><td><input name="jlca_reference" type="number" step="0.01" /></td><td><input name="jlca_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>aLDFA</td><td><input name="aldfa_reference" type="number" step="0.01" /></td><td><input name="aldfa_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>AMA</td><td><input name="ama_reference" type="number" step="0.01" /></td><td><input name="ama_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>aFTA</td><td><input name="afta_reference" type="number" step="0.01" /></td><td><input name="afta_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>aHKA</td><td><input name="ahka_reference" type="number" step="0.01" /></td><td><input name="ahka_kneeplan" type="number" step="0.01" /></td></tr>
-              <tr><td>JLO</td><td><input name="jlo_reference" type="number" step="0.01" /></td><td><input name="jlo_kneeplan" type="number" step="0.01" /></td></tr>
-            </tbody></table>
-          </div>
-          <label><span>CPAK — <span data-es="Referencia experta" data-en="Expert reference">Referencia experta</span></span><select name="cpak_reference"><option value="">—</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>V</option><option>VI</option><option>VII</option><option>VIII</option><option>IX</option></select></label>
-          <label><span>CPAK — KneePlanAI</span><select name="cpak_kneeplan"><option value="">—</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>V</option><option>VI</option><option>VII</option><option>VIII</option><option>IX</option></select></label>
-          <label class="portal-form-wide"><span data-es="Observaciones no identificables" data-en="Non-identifying comments">Observaciones no identificables</span><textarea name="comments" maxlength="2000"></textarea></label>
-          <button class="button button-primary portal-submit portal-form-wide" type="submit" data-es="Enviar validación" data-en="Submit validation">Enviar validación</button>
-        </form>
-        <p class="portal-privacy-note"><span>✓</span><span><strong data-es="No incluyas" data-en="Do not include">No incluyas</strong> <span data-es="nombres, documentos, números de historia clínica, fechas de nacimiento ni imágenes radiográficas." data-en="names, documents, medical record numbers, dates of birth, or radiographic images.">nombres, documentos, números de historia clínica, fechas de nacimiento ni imágenes radiográficas.</span></span></p>
+        <div class="portal-section-header"><div><span class="kicker" data-es="PROGRAMA DE MEDICIÓN" data-en="MEASUREMENT PROGRAM">PROGRAMA DE MEDICIÓN</span><h2 data-es="Analizar un caso" data-en="Analyze a case">Analizar un caso</h2><p data-es="Carga la radiografía en el navegador, sitúa las referencias anatómicas y finaliza. KneePlanAI calcula y guarda automáticamente el JSON y la fila CSV." data-en="Load the radiograph in the browser, place the anatomical landmarks, and finish. KneePlanAI automatically calculates and stores the JSON and CSV row.">Carga la radiografía en el navegador, sitúa las referencias anatómicas y finaliza. KneePlanAI calcula y guarda automáticamente el JSON y la fila CSV.</p></div><span class="portal-badge" data-es="LA IMAGEN NO SE SUBE" data-en="IMAGE IS NOT UPLOADED">LA IMAGEN NO SE SUBE</span></div>
+        <a class="button button-primary portal-submit" href="/workbench" data-es="Abrir KneePlanAI Web" data-en="Open KneePlanAI Web">Abrir KneePlanAI Web</a>
+        <p class="portal-privacy-note"><span>✓</span><span><strong data-es="Procesamiento local:" data-en="Local processing:">Procesamiento local:</strong> <span data-es="solo se sincronizan el código seudonimizado, las referencias, los resultados y metadatos técnicos no identificadores." data-en="only the pseudonymized code, landmarks, results, and non-identifying technical metadata are synchronized.">solo se sincronizan el código seudonimizado, las referencias, los resultados y metadatos técnicos no identificadores.</span></span></p>
       </section>
 
       <section id="report-section" class="portal-section portal-hidden">

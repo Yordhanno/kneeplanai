@@ -54,6 +54,45 @@ CREATE INDEX IF NOT EXISTS idx_validation_researcher ON validation_results(resea
 CREATE INDEX IF NOT EXISTS idx_validation_case ON validation_results(case_code);
 CREATE INDEX IF NOT EXISTS idx_validation_created ON validation_results(created_at);
 
+CREATE TABLE IF NOT EXISTS research_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  researcher_id INTEGER NOT NULL,
+  case_code TEXT NOT NULL,
+  center_code TEXT NOT NULL DEFAULT '',
+  side TEXT NOT NULL CHECK (side IN ('derecha', 'izquierda')),
+  mode TEXT NOT NULL CHECK (mode IN ('manual_cegado', 'validacion_externa', 'desarrollo_oai')),
+  method TEXT NOT NULL CHECK (method IN ('manual_web', 'autodeteccion_web', 'manual_corregido_web')),
+  session TEXT NOT NULL CHECK (session IN ('inicial', 'repeticion_4_semanas')),
+  image_quality TEXT NOT NULL DEFAULT '' CHECK (image_quality IN ('', 'adequate', 'limited', 'poor')),
+  app_version TEXT NOT NULL,
+  schema_version TEXT NOT NULL,
+  image_sha256 TEXT NOT NULL,
+  filename_sha256 TEXT NOT NULL DEFAULT '',
+  hka_internal REAL,
+  hka_signed REAL,
+  mldfa REAL,
+  mpta REAL,
+  jlca REAL,
+  jlca_signed REAL,
+  aldfa REAL,
+  ama REAL,
+  afta REAL,
+  ahka REAL,
+  jlo REAL,
+  cpak TEXT,
+  manual_seconds REAL,
+  review_confirmed INTEGER NOT NULL DEFAULT 0,
+  raw_json TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (researcher_id, case_code, side, session, method),
+  FOREIGN KEY (researcher_id) REFERENCES researchers(id) ON DELETE RESTRICT
+);
+
+CREATE INDEX IF NOT EXISTS idx_runs_researcher ON research_runs(researcher_id);
+CREATE INDEX IF NOT EXISTS idx_runs_case ON research_runs(case_code);
+CREATE INDEX IF NOT EXISTS idx_runs_created ON research_runs(created_at);
+
 CREATE TABLE IF NOT EXISTS tester_reports (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   researcher_id INTEGER NOT NULL,
