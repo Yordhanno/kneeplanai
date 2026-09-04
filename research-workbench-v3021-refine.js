@@ -16,7 +16,6 @@ const NATIVE_CENTER_RADIUS_PX = 3.8;
 const NATIVE_POINT_RADIUS_PX = 4.5;
 const NATIVE_ENDPOINT_RADIUS_PX = 3.8;
 const NATIVE_EDGE_TOLERANCE_PX = 9.0;
-
 const WEB_RADIUS_WHEEL_STEP = 1.0;
 const WEB_RADIUS_WHEEL_THRESHOLD = 12;
 
@@ -83,7 +82,6 @@ function ensureReviewRecorded() {
   review.checked = true;
   review.dispatchEvent(new Event('change', { bubbles: true }));
 }
-
 ensureReviewRecorded();
 window.setInterval(ensureReviewRecorded, 700);
 
@@ -99,9 +97,7 @@ const toolObserver = new MutationObserver(() => {
   placementMode();
   if (!active && lastCircleTool) {
     const key = lastCircleTool;
-    requestAnimationFrame(() => {
-      if (circleForKey(key)) selectCircleVisual(key);
-    });
+    requestAnimationFrame(() => { if (circleForKey(key)) selectCircleVisual(key); });
   }
 });
 for (const button of document.querySelectorAll('[data-tool], #calibrate-25')) {
@@ -132,27 +128,31 @@ function circleGeometry(circle) {
   return [cx, cy, radius].every(Number.isFinite) ? { cx, cy, radius } : null;
 }
 
-function addResizeHitRings() {
-  referenceLayer?.querySelectorAll('.circle-resize-hit').forEach((node) => node.remove());
+function syncResizeHitRings() {
   if (!referenceLayer) return;
-
+  const existing = new Map([...referenceLayer.querySelectorAll('.circle-resize-hit[data-key]')].map((node) => [node.dataset.key, node]));
   for (const circle of referenceLayer.querySelectorAll('.reference-circle[data-key]')) {
     const geometry = circleGeometry(circle);
     if (!geometry) continue;
-    const hit = document.createElementNS(SVG_NS, 'circle');
+    let hit = existing.get(circle.dataset.key);
+    if (!hit) {
+      hit = document.createElementNS(SVG_NS, 'circle');
+      hit.setAttribute('class', 'circle-resize-hit draggable');
+      hit.setAttribute('data-key', circle.dataset.key);
+      hit.setAttribute('data-part', 'circle');
+      hit.setAttribute('fill', 'none');
+      hit.setAttribute('stroke', 'transparent');
+      hit.setAttribute('stroke-width', String(NATIVE_EDGE_TOLERANCE_PX * 2));
+      hit.setAttribute('vector-effect', 'non-scaling-stroke');
+      hit.setAttribute('pointer-events', 'stroke');
+      referenceLayer.append(hit);
+    }
     hit.setAttribute('cx', String(geometry.cx));
     hit.setAttribute('cy', String(geometry.cy));
     hit.setAttribute('r', String(geometry.radius));
-    hit.setAttribute('class', 'circle-resize-hit draggable');
-    hit.setAttribute('data-key', circle.dataset.key);
-    hit.setAttribute('data-part', 'circle');
-    hit.setAttribute('fill', 'none');
-    hit.setAttribute('stroke', 'transparent');
-    hit.setAttribute('stroke-width', String(NATIVE_EDGE_TOLERANCE_PX * 2));
-    hit.setAttribute('vector-effect', 'non-scaling-stroke');
-    hit.setAttribute('pointer-events', 'stroke');
-    referenceLayer.append(hit);
+    existing.delete(circle.dataset.key);
   }
+  for (const stale of existing.values()) stale.remove();
 }
 
 function classifyReferenceElements() {
@@ -173,7 +173,6 @@ function classifyReferenceElements() {
     const key = handle.dataset.key;
     const part = handle.dataset.part || '';
     let nativeRadius = NATIVE_ENDPOINT_RADIUS_PX;
-
     if (handle.classList.contains('reference-point')) {
       handle.classList.add('native-landmark-point');
       nativeRadius = NATIVE_POINT_RADIUS_PX;
@@ -184,27 +183,30 @@ function classifyReferenceElements() {
       handle.classList.add('native-circle-center');
       nativeRadius = NATIVE_CENTER_RADIUS_PX;
     }
-
-    const cssRadius = nativeCssPixels(nativeRadius);
-    handle.setAttribute('r', String(cssRadius / scale));
+    handle.setAttribute('r', String(nativeCssPixels(nativeRadius) / scale));
   }
-
-  addResizeHitRings();
+  syncResizeHitRings();
 }
 
 function drawSelectionBox() {
-  referenceLayer?.querySelectorAll('.circle-selection-box').forEach((node) => node.remove());
+  if (!referenceLayer) return;
   const circle = circleForKey(selectedCircleKey);
   const geometry = circleGeometry(circle);
-  if (!geometry || !referenceLayer) return;
-  const box = document.createElementNS(SVG_NS, 'rect');
+  let box = referenceLayer.querySelector('.circle-selection-box');
+  if (!geometry) {
+    box?.remove();
+    return;
+  }
+  if (!box) {
+    box = document.createElementNS(SVG_NS, 'rect');
+    box.setAttribute('class', 'circle-selection-box');
+    referenceLayer.insertBefore(box, referenceLayer.firstChild);
+  }
+  box.dataset.key = selectedCircleKey;
   box.setAttribute('x', String(geometry.cx - geometry.radius));
   box.setAttribute('y', String(geometry.cy - geometry.radius));
   box.setAttribute('width', String(geometry.radius * 2));
   box.setAttribute('height', String(geometry.radius * 2));
-  box.setAttribute('class', 'circle-selection-box');
-  box.dataset.key = selectedCircleKey;
-  referenceLayer.insertBefore(box, referenceLayer.firstChild);
 }
 
 function selectCircleVisual(key) {
@@ -223,7 +225,13 @@ function scheduleNativeOverlaySync() {
   });
 }
 
-if (referenceLayer) new MutationObserver(scheduleNativeOverlaySync).observe(referenceLayer, { childList: true });
+if (referenceLayer) {
+  new MutationObserver((mutations) => {
+    const meaningful = mutations.some((mutation) => [...mutation.addedNodes, ...mutation.removedNodes]
+      .some((node) => !(node instanceof Element) || (!node.classList.contains('circle-resize-hit') && !node.classList.contains('circle-selection-box'))));
+    if (meaningful) scheduleNativeOverlaySync();
+  }).observe(referenceLayer, { childList: true });
+}
 if (stage) new MutationObserver(scheduleNativeOverlaySync).observe(stage, { attributes: true, attributeFilter: ['style'] });
 window.addEventListener('resize', scheduleNativeOverlaySync);
 
@@ -252,7 +260,7 @@ function edgeDistance(event, key) {
   const point = svgPoint(event.clientX, event.clientY);
   const geometry = circleGeometry(circleForKey(key));
   if (!point || !geometry) return null;
-  return { point, geometry, distance: Math.hypot(point.x - geometry.cx, point.y - geometry.cy) };
+  return { distance: Math.hypot(point.x - geometry.cx, point.y - geometry.cy) };
 }
 
 referenceLayer?.addEventListener('pointerdown', (event) => {
@@ -267,15 +275,13 @@ referenceLayer?.addEventListener('pointerdown', (event) => {
 }, true);
 
 svg?.addEventListener('pointermove', (event) => {
-  if (resizing && event.pointerId === resizing.pointerId) {
-    const data = edgeDistance(event, resizing.key);
-    if (!data) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    scheduleRadius(data.distance);
-    return;
-  }
+  if (!resizing || event.pointerId !== resizing.pointerId) return;
+  const data = edgeDistance(event, resizing.key);
+  if (!data) return;
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  scheduleRadius(data.distance);
 }, true);
 
 function stopResize(event) {
@@ -291,7 +297,6 @@ viewer?.addEventListener('wheel', (event) => {
   if (!event.deltaY) return;
   const key = event.target?.dataset?.key;
   if (!CIRCLE_KEYS.has(key) || !circleForKey(key) || !radiusSlider) return;
-
   event.preventDefault();
   event.stopPropagation();
   event.stopImmediatePropagation();
@@ -302,7 +307,6 @@ viewer?.addEventListener('wheel', (event) => {
   const direction = Math.sign(accumulated);
   let steps = Math.floor(Math.abs(accumulated) / WEB_RADIUS_WHEEL_THRESHOLD);
   steps = Math.min(3, steps);
-
   if (steps > 0) {
     const current = Number(radiusSlider.value);
     if (Number.isFinite(current)) applyRadius(current + (direction < 0 ? 1 : -1) * WEB_RADIUS_WHEEL_STEP * steps);
@@ -352,7 +356,6 @@ function restorePastedFilename(filename, attempts = 0) {
     return;
   }
   if (stillLoading) return;
-
   const suffixMatch = text.match(/\s·\s\d+\s×\s\d+\s*$/);
   fileStatus.textContent = `${filename}${suffixMatch ? suffixMatch[0] : ''}`;
   const recoveredCode = caseCodeFromOriginalFilename(filename);
