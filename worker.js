@@ -352,7 +352,7 @@ async function handleResearchApi(request, env, url) {
         ) VALUES (${placeholders})`
       ).bind(
         context.user.id,
-        clean(payload.case_code, 64),
+        clean(payload.case_code, 120),
         clean(payload.app_version, 30),
         clean(payload.image_quality, 12),
         nullableInteger(payload.analysis_duration_seconds),
@@ -524,7 +524,8 @@ async function handleAdminApi(request, env, url) {
         rr.ahka, rr.jlo, rr.cpak, rr.manual_seconds, rr.review_confirmed,
         rr.created_at, rr.updated_at
        FROM research_runs rr JOIN researchers r ON r.id = rr.researcher_id
-       ORDER BY rr.updated_at DESC`
+       ORDER BY rr.case_code COLLATE NOCASE ASC, r.kneeplan_id COLLATE NOCASE ASC,
+         rr.side ASC, rr.session ASC, rr.updated_at DESC`
     ).all();
     return csvResponse(results || [], 'kneeplanai-research-results.csv');
   }
@@ -533,7 +534,8 @@ async function handleAdminApi(request, env, url) {
     const { results } = await env.RESEARCH_DB.prepare(
       `SELECT rr.id, r.kneeplan_id, r.role, rr.created_at, rr.updated_at, rr.raw_json
        FROM research_runs rr JOIN researchers r ON r.id = rr.researcher_id
-       ORDER BY rr.updated_at DESC`
+       ORDER BY rr.case_code COLLATE NOCASE ASC, r.kneeplan_id COLLATE NOCASE ASC,
+         rr.side ASC, rr.session ASC, rr.updated_at DESC`
     ).all();
     const exported = (results || []).map((row) => {
       let result = null;
@@ -632,9 +634,14 @@ function validateResearcher(payload) {
   return null;
 }
 
+function validCaseCode(value) {
+  const code = clean(value, 120);
+  return code.length >= 1 && !/[\u0000-\u001f<>:"/\\|?*]/.test(code);
+}
+
 function validateValidation(payload) {
   if (!payload || typeof payload !== 'object') return 'invalid_payload';
-  if (!/^[A-Za-z0-9._-]{2,64}$/.test(clean(payload.case_code, 64))) return 'invalid_case_code';
+  if (!validCaseCode(payload.case_code)) return 'invalid_case_code';
   if (!['', 'adequate', 'limited', 'poor'].includes(clean(payload.image_quality, 12))) return 'invalid_image_quality';
   if (!CPAK_TYPES.has(clean(payload.cpak_reference, 4).toUpperCase())) return 'invalid_cpak_reference';
   if (!CPAK_TYPES.has(clean(payload.cpak_kneeplan, 4).toUpperCase())) return 'invalid_cpak_kneeplan';
@@ -664,7 +671,7 @@ function validateResearchRun(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return 'invalid_payload';
   if (payload.schema_version !== 'kpai-web-result/1') return 'invalid_schema_version';
   if (clean(payload.app_version, 80).length < 3) return 'invalid_app_version';
-  if (!/^[A-Za-z0-9._-]{2,64}$/.test(clean(payload.case_code, 64))) return 'invalid_case_code';
+  if (!validCaseCode(payload.case_code)) return 'invalid_case_code';
   if (!['derecha', 'izquierda'].includes(payload.side)) return 'invalid_side';
   if (!['manual_cegado', 'validacion_externa', 'desarrollo_oai'].includes(payload.mode)) return 'invalid_mode';
   if (!['manual_web', 'autodeteccion_web', 'manual_corregido_web'].includes(payload.method)) return 'invalid_method';
@@ -738,7 +745,7 @@ function canonicalResearchRun(payload, user) {
     saved_at: new Date().toISOString(),
     participant: { kneeplan_id: user.kneeplan_id, role: user.role },
     case: {
-      case_code: clean(payload.case_code, 64),
+      case_code: clean(payload.case_code, 120),
       center_code: clean(payload.center_code, 80),
       side: payload.side,
       session: payload.session,

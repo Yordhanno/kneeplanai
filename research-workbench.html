@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex,nofollow,noarchive" />
+  <meta name="theme-color" content="#07090d" />
   <title>KneePlanAI Research | Programa web</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,8 +14,9 @@
   <link rel="stylesheet" href="/research-workbench.css" />
 </head>
 <body class="portal-body workbench-body">
-  <header class="portal-header">
+  <header class="portal-header workbench-header">
     <a class="brand" href="/" aria-label="KneePlanAI Research"><img class="brand-icon" src="/favicon-192.png?v=5" alt="" width="192" height="192" /><span>KneePlan<span class="accent">AI</span> <small>Research</small></span></a>
+    <div class="workbench-identity" aria-live="polite"><span data-es="IDENTIDAD" data-en="IDENTITY">IDENTIDAD</span><strong id="workbench-user">—</strong><small id="workbench-role">—</small></div>
     <div class="portal-header-actions">
       <a class="portal-header-link" href="/" data-es="Volver al portal" data-en="Back to portal">Volver al portal</a>
       <a class="portal-header-link" href="/cdn-cgi/access/logout" data-es="Cerrar sesión" data-en="Sign out">Cerrar sesión</a>
@@ -22,39 +24,24 @@
     </div>
   </header>
 
-  <main class="workbench-shell">
-    <section class="workbench-title">
-      <div>
-        <p class="kicker">KNEEPLANAI WEB · RESEARCH BUILD</p>
-        <h1 data-es="Medición trazable dentro del navegador." data-en="Traceable measurement inside the browser.">Medición trazable dentro del navegador.</h1>
-        <p data-es="Carga la radiografía, sitúa las referencias y finaliza el caso. Las mediciones se calculan y sincronizan sin transcribir resultados." data-en="Load the radiograph, place the landmarks, and finish the case. Measurements are calculated and synchronized without transcribing results.">Carga la radiografía, sitúa las referencias y finaliza el caso. Las mediciones se calculan y sincronizan sin transcribir resultados.</p>
-      </div>
-      <div class="workbench-user"><span data-es="IDENTIDAD AUTORIZADA" data-en="AUTHORIZED IDENTITY">IDENTIDAD AUTORIZADA</span><strong id="workbench-user">—</strong><small id="workbench-role">—</small></div>
+  <main class="workbench-app">
+    <section class="case-toolbar" aria-labelledby="case-heading">
+      <div class="case-toolbar-heading"><span>01</span><div><h1 id="case-heading" data-es="Caso" data-en="Case">Caso</h1><p data-es="Radiografía codificada · procesamiento local" data-en="Coded radiograph · local processing">Radiografía codificada · procesamiento local</p></div></div>
+      <label class="compact-file-picker"><span data-es="Abrir radiografía" data-en="Open radiograph">Abrir radiografía</span><input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,.dcm,.dicom,.dcim" /></label>
+      <div class="case-file"><span data-es="ARCHIVO / CASO" data-en="FILE / CASE">ARCHIVO / CASO</span><strong id="file-status" data-es="Ninguna radiografía" data-en="No radiograph">Ninguna radiografía</strong><input id="case-code" type="hidden" /></div>
+      <label><span data-es="Centro" data-en="Center">Centro</span><input id="center-code" maxlength="80" placeholder="Centro externo" /></label>
+      <label><span data-es="Lado" data-en="Side">Lado</span><select id="case-side"><option value="derecha" data-es="Derecha" data-en="Right">Derecha</option><option value="izquierda" data-es="Izquierda" data-en="Left">Izquierda</option></select></label>
+      <label><span data-es="Sesión" data-en="Session">Sesión</span><select id="case-session"><option value="inicial" data-es="Inicial" data-en="Initial">Inicial</option><option value="repeticion_4_semanas" data-es="Repetición ≥4 semanas" data-en="Repeat ≥4 weeks">Repetición ≥4 semanas</option></select></label>
+      <label><span data-es="Calidad" data-en="Quality">Calidad</span><select id="image-quality"><option value="adequate" data-es="Adecuada" data-en="Adequate">Adecuada</option><option value="limited" data-es="Limitada" data-en="Limited">Limitada</option><option value="poor" data-es="Deficiente" data-en="Poor">Deficiente</option></select></label>
     </section>
 
-    <div id="workbench-error" class="portal-alert error" role="alert"></div>
-    <div id="workbench-message" class="portal-alert success" role="status"></div>
-
-    <section class="privacy-strip">
-      <strong data-es="Procesamiento local" data-en="Local processing">Procesamiento local</strong>
-      <span data-es="La radiografía no se carga al servidor. Solo se sincronizan el código seudonimizado, la geometría, las mediciones y metadatos técnicos no identificadores." data-en="The radiograph is not uploaded to the server. Only the pseudonymized code, geometry, measurements, and non-identifying technical metadata are synchronized.">La radiografía no se carga al servidor. Solo se sincronizan el código seudonimizado, la geometría, las mediciones y metadatos técnicos no identificadores.</span>
-    </section>
+    <div id="workbench-error" class="portal-alert error workbench-alert" role="alert"></div>
+    <div id="workbench-message" class="portal-alert success workbench-alert" role="status"></div>
 
     <section class="workbench-grid">
-      <aside class="workbench-panel case-panel">
-        <div class="panel-heading"><span>01</span><h2 data-es="Caso" data-en="Case">Caso</h2></div>
-        <label class="file-picker"><span data-es="Abrir radiografía" data-en="Open radiograph">Abrir radiografía</span><input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,.dcm,.dicom,.dcim" /></label>
-        <p id="file-status" class="panel-note" data-es="PNG, JPEG, WebP o DICOM sin comprimir." data-en="PNG, JPEG, WebP, or uncompressed DICOM.">PNG, JPEG, WebP o DICOM sin comprimir.</p>
-        <label><span data-es="Código seudonimizado" data-en="Pseudonymized code">Código seudonimizado</span><input id="case-code" maxlength="64" pattern="[A-Za-z0-9._-]{2,64}" placeholder="KPAI-0001" /></label>
-        <label><span data-es="Centro" data-en="Center">Centro</span><input id="center-code" maxlength="80" placeholder="Centro externo" /></label>
-        <label><span data-es="Lado" data-en="Side">Lado</span><select id="case-side"><option value="derecha" data-es="Derecha" data-en="Right">Derecha</option><option value="izquierda" data-es="Izquierda" data-en="Left">Izquierda</option></select></label>
-        <label><span data-es="Sesión" data-en="Session">Sesión</span><select id="case-session"><option value="inicial" data-es="Inicial" data-en="Initial">Inicial</option><option value="repeticion_4_semanas" data-es="Repetición ≥4 semanas" data-en="Repeat ≥4 weeks">Repetición ≥4 semanas</option></select></label>
-        <label><span data-es="Calidad de imagen" data-en="Image quality">Calidad de imagen</span><select id="image-quality"><option value="adequate" data-es="Adecuada" data-en="Adequate">Adecuada</option><option value="limited" data-es="Limitada" data-en="Limited">Limitada</option><option value="poor" data-es="Deficiente" data-en="Poor">Deficiente</option></select></label>
-        <div class="ai-status"><span data-es="AUTODETECCIÓN IA" data-en="AI AUTODETECTION">AUTODETECCIÓN IA</span><strong data-es="Pendiente de incorporar modelos" data-en="Waiting for model files">Pendiente de incorporar modelos</strong><small data-es="Esta compilación registra medición manual cegada." data-en="This build records blinded manual measurements.">Esta compilación registra medición manual cegada.</small></div>
-      </aside>
-
-      <section class="workbench-panel viewer-panel">
-        <div class="panel-heading viewer-heading"><div><span>02</span><h2 data-es="Referencias anatómicas" data-en="Anatomical landmarks">Referencias anatómicas</h2></div><div class="zoom-controls"><button id="zoom-out" type="button" aria-label="Reducir">−</button><output id="zoom-value">100%</output><button id="zoom-in" type="button" aria-label="Ampliar">+</button></div></div>
+      <aside class="workbench-panel references-panel">
+        <div class="panel-heading"><span>02</span><h2 data-es="Referencias anatómicas" data-en="Anatomical landmarks">Referencias anatómicas</h2></div>
+        <div id="status-card" class="status-card"><span data-es="ESTADO" data-en="STATUS">ESTADO</span><strong id="status-progress">0 de 10 referencias completadas</strong><p id="status-detail" data-es="Abra una radiografía para comenzar." data-en="Open a radiograph to begin.">Abra una radiografía para comenzar.</p></div>
         <div class="tool-grid" id="tool-grid">
           <button type="button" data-tool="cabeza"><b>FH</b><span data-es="Cabeza femoral" data-en="Femoral head">Cabeza femoral</span></button>
           <button type="button" data-tool="femur_proximal"><b>FAA-P</b><span data-es="Fémur proximal" data-en="Proximal femur">Fémur proximal</span></button>
@@ -67,24 +54,25 @@
           <button type="button" data-tool="linea_tibial"><b>TMP–TLP</b><span data-es="Línea tibial" data-en="Tibial line">Línea tibial</span></button>
           <button type="button" data-tool="tobillo"><b>AC</b><span data-es="Tobillo" data-en="Ankle">Tobillo</span></button>
         </div>
-        <div class="viewer-actions"><button id="seed-axes" type="button" data-es="Proponer referencias 4/10 cm" data-en="Suggest 4/10 cm landmarks">Proponer referencias 4/10 cm</button><button id="clear-geometry" type="button" data-es="Borrar referencias" data-en="Clear landmarks">Borrar referencias</button></div>
+        <p id="tool-guidance" class="tool-guidance" data-es="Abra una radiografía codificada para comenzar." data-en="Open a coded radiograph to begin.">Abra una radiografía codificada para comenzar.</p>
         <div id="radius-control" class="radius-control" hidden><label><span data-es="Radio seleccionado" data-en="Selected radius">Radio seleccionado</span><input id="radius-slider" type="range" min="3" max="300" step="1" /></label><output id="radius-value">—</output></div>
+        <div class="viewer-actions"><button id="seed-axes" type="button" data-es="Proponer 4/10 cm" data-en="Suggest 4/10 cm">Proponer 4/10 cm</button><button id="clear-geometry" type="button" data-es="Borrar referencias" data-en="Clear landmarks">Borrar referencias</button></div>
+        <div class="privacy-note"><strong data-es="Procesamiento local" data-en="Local processing">Procesamiento local</strong><span data-es="La radiografía no se sube. Usa solamente nombres de archivo previamente codificados." data-en="The radiograph is not uploaded. Use only previously coded filenames.">La radiografía no se sube. Usa solamente nombres de archivo previamente codificados.</span></div>
+      </aside>
+
+      <section class="viewer-panel" aria-label="Visor radiográfico">
+        <div class="viewer-toolbar"><div class="zoom-controls"><button id="zoom-out" type="button" aria-label="Reducir">−</button><output id="zoom-value">100%</output><button id="zoom-in" type="button" aria-label="Ampliar">+</button><button id="fit-view" type="button" data-es="Ajustar" data-en="Fit">Ajustar</button></div><p data-es="Rueda: zoom · arrastra el fondo: desplazar · doble clic: ampliar/ajustar" data-en="Wheel: zoom · drag background: pan · double-click: zoom/fit">Rueda: zoom · arrastra el fondo: desplazar · doble clic: ampliar/ajustar</p></div>
         <div id="viewer-scroll" class="viewer-scroll">
-          <div id="viewer-stage" class="viewer-stage">
-            <canvas id="radiograph-canvas"></canvas>
-            <svg id="landmark-layer" aria-label="Área de anotación"><g id="axis-layer"></g><g id="reference-layer"></g></svg>
-            <div id="viewer-placeholder"><strong data-es="Abre una radiografía para comenzar" data-en="Open a radiograph to begin">Abre una radiografía para comenzar</strong><span data-es="La imagen permanecerá en este dispositivo." data-en="The image will remain on this device.">La imagen permanecerá en este dispositivo.</span></div>
-          </div>
+          <div id="viewer-stage" class="viewer-stage"><canvas id="radiograph-canvas"></canvas><svg id="landmark-layer" aria-label="Área de anotación"><g id="axis-layer"></g><g id="reference-layer"></g></svg></div>
+          <div id="viewer-placeholder"><strong data-es="Abra una radiografía para comenzar" data-en="Open a radiograph to begin">Abra una radiografía para comenzar</strong><span data-es="La imagen permanecerá en este dispositivo." data-en="The image will remain on this device.">La imagen permanecerá en este dispositivo.</span></div>
         </div>
-        <p id="tool-guidance" class="tool-guidance" data-es="Selecciona una referencia y luego sitúala sobre la radiografía." data-en="Select a landmark and then place it on the radiograph.">Selecciona una referencia y luego sitúala sobre la radiografía.</p>
       </section>
 
       <aside class="workbench-panel results-panel">
         <div class="panel-heading"><span>03</span><h2 data-es="Resultados" data-en="Results">Resultados</h2></div>
         <div id="completion-status" class="completion-status"><strong>0 / 10</strong><span data-es="referencias completas" data-en="landmarks complete">referencias completas</span></div>
         <table class="measurement-table"><tbody id="measurement-results"></tbody></table>
-        <div class="qc-box">
-          <strong data-es="Control de calidad" data-en="Quality control">Control de calidad</strong>
+        <div class="qc-box"><strong data-es="Control de calidad" data-en="Quality control">Control de calidad</strong>
           <label><input type="checkbox" data-qc="flexion_aparente" /><span data-es="Flexión aparente" data-en="Apparent flexion">Flexión aparente</span></label>
           <label><input type="checkbox" data-qc="malrotacion_sospechada" /><span data-es="Malrotación sospechada" data-en="Suspected malrotation">Malrotación sospechada</span></label>
           <label><input type="checkbox" data-qc="osteofitos_marginales" /><span data-es="Osteofitos marginales" data-en="Marginal osteophytes">Osteofitos marginales</span></label>
@@ -94,7 +82,8 @@
         </div>
         <label class="review-check"><input id="review-confirmed" type="checkbox" /><span data-es="Confirmo que revisé todas las referencias y que el caso no contiene datos identificables." data-en="I confirm that I reviewed every landmark and that the case contains no identifying data.">Confirmo que revisé todas las referencias y que el caso no contiene datos identificables.</span></label>
         <button id="save-result" class="button button-primary save-result" type="button" disabled><span data-es="Finalizar y sincronizar" data-en="Finish and synchronize">Finalizar y sincronizar</span><span>↗</span></button>
-        <p class="panel-note" data-es="Al finalizar se guarda un JSON trazable en D1. El administrador puede descargar el conjunto completo en JSON o CSV." data-en="Finishing saves a traceable JSON record in D1. The administrator can download the complete dataset as JSON or CSV.">Al finalizar se guarda un JSON trazable en D1. El administrador puede descargar el conjunto completo en JSON o CSV.</p>
+        <div class="result-downloads"><button id="download-result" type="button" disabled data-es="Guardar resultado PNG" data-en="Save result PNG">Guardar resultado PNG</button><button id="download-report" type="button" disabled data-es="Guardar informe PDF" data-en="Save PDF report">Guardar informe PDF</button></div>
+        <p class="panel-note" data-es="La sincronización agrega este caso al conjunto acumulado. Administración descarga todos los casos juntos en CSV para Excel o en JSON." data-en="Synchronization adds this case to the cumulative dataset. Administration downloads all cases together as an Excel-ready CSV or JSON.">La sincronización agrega este caso al conjunto acumulado. Administración descarga todos los casos juntos en CSV para Excel o en JSON.</p>
       </aside>
     </section>
   </main>
