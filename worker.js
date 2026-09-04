@@ -176,8 +176,11 @@ export default {
       if (url.pathname === '/' || url.pathname === '/index.html') {
         return serveAsset(request, env, '/research-portal.html');
       }
-      if (url.pathname === '/admin' || url.pathname === '/admin/' || url.pathname === '/research-admin' || url.pathname === '/research-admin/') {
-        return serveAsset(request, env, '/research-admin.html');
+      if (url.pathname === '/admin' || url.pathname === '/admin/') {
+        return Response.redirect(`${url.origin}/research-admin`, 302);
+      }
+      if (url.pathname === '/research-admin' || url.pathname === '/research-admin/') {
+        return serveAsset(request, env);
       }
       if (url.pathname === '/workbench' || url.pathname === '/workbench/') {
         return serveAsset(request, env, '/research-workbench.html');
@@ -828,10 +831,12 @@ function ensureResearchSchema(database) {
   return researchSchemaPromise;
 }
 
-async function serveAsset(request, env, pathname) {
+async function serveAsset(request, env, pathname = null) {
   const assetUrl = new URL(request.url);
-  assetUrl.pathname = pathname;
-  assetUrl.search = '';
+  if (pathname) {
+    assetUrl.pathname = pathname;
+    assetUrl.search = '';
+  }
   const response = await env.ASSETS.fetch(new Request(assetUrl, request));
   const headers = new Headers(response.headers);
   headers.set('cache-control', 'no-store');
