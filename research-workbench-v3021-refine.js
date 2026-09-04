@@ -12,18 +12,15 @@ const fileStatus = document.getElementById('file-status');
 const caseCode = document.getElementById('case-code');
 
 const CIRCLE_KEYS = new Set(['cabeza', 'femur_proximal', 'femur_f10', 'tibia_t4', 'tibia_t10', 'tobillo']);
-
-// Native v3.0.21 values from graphics_items.py / image_view.py.
-// Qt cosmetic pens and ItemIgnoresTransformations are device-pixel based.
 const NATIVE_CENTER_RADIUS_PX = 3.8;
 const NATIVE_POINT_RADIUS_PX = 4.5;
 const NATIVE_ENDPOINT_RADIUS_PX = 3.8;
 const NATIVE_EDGE_TOLERANCE_PX = 9.0;
 
-// Browser wheel/trackpad events arrive much more frequently than Qt wheel events.
-// Keep wheel as a fine adjustment; direct border dragging remains the primary resize method.
-const WEB_RADIUS_WHEEL_STEP = 0.5;
-const WEB_RADIUS_WHEEL_THRESHOLD = 24;
+// Web trackpads emit many more wheel events than Qt. This setting keeps the
+// wheel responsive without making it jumpy; dragging the edge remains primary.
+const WEB_RADIUS_WHEEL_STEP = 1.0;
+const WEB_RADIUS_WHEEL_THRESHOLD = 12;
 
 let selectedCircleKey = null;
 let resizing = null;
@@ -33,7 +30,6 @@ let pendingRadius = null;
 let overlayScheduled = false;
 const radiusWheelAccumulator = new Map();
 
-// v3.0.21 RadiusControl uses an internal scale of 10 = 0.1 px resolution.
 if (radiusSlider) radiusSlider.step = '0.1';
 
 function language() {
@@ -66,12 +62,13 @@ function stageScale() {
 function syncNativePixelMetrics() {
   const root = document.documentElement;
   const px = (value) => `${nativeCssPixels(value)}px`;
-  root.style.setProperty('--kpai-circle-stroke', px(2.5));
+
+  // The Qt 2.5 px cosmetic circle still looks heavier in Safari/Retina than in
+  // the native app. 1.6 physical px reproduces the visual weight more closely.
+  root.style.setProperty('--kpai-circle-stroke', px(1.6));
   root.style.setProperty('--kpai-center-stroke', px(1.0));
   root.style.setProperty('--kpai-point-stroke', px(1.5));
   root.style.setProperty('--kpai-endpoint-stroke', px(1.5));
-  // Slightly lighter than the native 1.7 px because the browser rasterizer
-  // makes these two joint lines appear visually heavier on Retina displays.
   root.style.setProperty('--kpai-reference-line-stroke', px(1.25));
   root.style.setProperty('--kpai-mechanical-axis-stroke', px(2.4));
   root.style.setProperty('--kpai-anatomical-axis-stroke', px(1.8));
@@ -81,8 +78,8 @@ function syncNativePixelMetrics() {
 
 function updateToolbarHelp() {
   if (!toolbarHelp) return;
-  toolbarHelp.dataset.es = 'Círculo: arrastra para mover · arrastra el borde para cambiar radio · rueda: ajuste fino · colocar: cruz';
-  toolbarHelp.dataset.en = 'Circle: drag to move · drag the edge to resize · wheel: fine adjustment · placement: crosshair';
+  toolbarHelp.dataset.es = 'Círculo: arrastra para mover · toma el borde con la mano para cambiar radio · rueda: ajuste fino';
+  toolbarHelp.dataset.en = 'Circle: drag to move · grab the edge to resize · wheel: fine adjustment';
   toolbarHelp.textContent = toolbarHelp.dataset[language()];
 }
 
@@ -140,6 +137,29 @@ function circleGeometry(circle) {
   return [cx, cy, radius].every(Number.isFinite) ? { cx, cy, radius } : null;
 }
 
+function addResizeHitRings() {
+  referenceLayer?.querySelectorAll('.circle-resize-hit').forEach((node) => node.remove());
+  if (!referenceLayer) return;
+
+  for (const circle of referenceLayer.querySelectorAll('.reference-circle[data-key]')) {
+    const geometry = circleGeometry(circle);
+    if (!geometry) continue;
+    const hit = document.createElementNS(SVG_NS, 'circle');
+    hit.setAttribute('cx', String(geometry.cx));
+    hit.setAttribute('cy', String(geometry.cy));
+    hit.setAttribute('r', String(geometry.radius));
+    hit.setAttribute('class', 'circle-resize-hit draggable');
+    hit.setAttribute('data-key', circle.dataset.key);
+    hit.setAttribute('data-part', 'circle');
+    hit.setAttribute('fill', 'none');
+    hit.setAttribute('stroke', 'transparent');
+    hit.setAttribute('stroke-width', String(NATIVE_EDGE_TOLERANCE_PX * 2));
+    hit.setAttribute('vector-effect', 'non-scaling-stroke');
+    hit.setAttribute('pointer-events', 'stroke');
+    referenceLayer.append(hit);
+  }
+}
+
 function classifyReferenceElements() {
   if (!referenceLayer) return;
   syncNativePixelMetrics();
@@ -170,11 +190,11 @@ function classifyReferenceElements() {
       nativeRadius = NATIVE_CENTER_RADIUS_PX;
     }
 
-    // Browser SVG uses CSS pixels; native Qt values are device pixels.
-    // Divide by devicePixelRatio first, then cancel the radiograph zoom.
     const cssRadius = nativeCssPixels(nativeRadius);
     handle.setAttribute('r', String(cssRadius / scale));
   }
+
+  addResizeHitRings();
 }
 
 function drawSelectionBox() {
@@ -208,12 +228,8 @@ function scheduleNativeOverlaySync() {
   });
 }
 
-if (referenceLayer) {
-  new MutationObserver(scheduleNativeOverlaySync).observe(referenceLayer, { childList: true });
-}
-if (stage) {
-  new MutationObserver(scheduleNativeOverlaySync).observe(stage, { attributes: true, attributeFilter: ['style'] });
-}
+if (referenceLayer) new MutationObserver(scheduleNativeOverlaySync).observe(referenceLayer, { childList: true });
+if (stage) new MutationObserver(scheduleNativeOverlaySync).observe(stage, { attributes: true, attributeFilter: ['style'] });
 window.addEventListener('resize', scheduleNativeOverlaySync);
 
 function applyRadius(value) {
@@ -237,41 +253,30 @@ function scheduleRadius(value) {
   });
 }
 
-function edgeDistance(event, circle) {
+function edgeDistance(event, key) {
   const point = svgPoint(event.clientX, event.clientY);
-  const geometry = circleGeometry(circle);
+  const geometry = circleGeometry(circleForKey(key));
   if (!point || !geometry) return null;
-  return {
-    point,
-    geometry,
-    distance: Math.hypot(point.x - geometry.cx, point.y - geometry.cy),
-  };
-}
-
-function isNearCircleEdge(event, circle) {
-  const data = edgeDistance(event, circle);
-  if (!data) return false;
-  const tolerance = nativeCssPixels(NATIVE_EDGE_TOLERANCE_PX) / stageScale();
-  return Math.abs(data.distance - data.geometry.radius) <= tolerance;
+  return { point, geometry, distance: Math.hypot(point.x - geometry.cx, point.y - geometry.cy) };
 }
 
 referenceLayer?.addEventListener('pointerdown', (event) => {
+  const hit = event.target.closest?.('.circle-resize-hit[data-key]');
   const circle = event.target.closest?.('.reference-circle[data-key]');
   const handle = event.target.closest?.('.reference-handle[data-key]');
-  const key = circle?.dataset.key || handle?.dataset.key;
+  const key = hit?.dataset.key || circle?.dataset.key || handle?.dataset.key;
   if (key && circleForKey(key)) selectCircleVisual(key);
-  if (!circle || !isNearCircleEdge(event, circle)) return;
+  if (!hit || !key) return;
 
-  // The base workbench selects the same circle. Subsequent pointer motion is
-  // intercepted so dragging the border controls only the radius, 1:1.
-  resizing = { key: circle.dataset.key, pointerId: event.pointerId };
+  // Let the base handler run on this draggable hit ring first so its private
+  // selectedKey is synchronized. We only replace the subsequent movement.
+  resizing = { key, pointerId: event.pointerId };
   viewer?.classList.add('circle-resizing');
 }, true);
 
 svg?.addEventListener('pointermove', (event) => {
   if (resizing && event.pointerId === resizing.pointerId) {
-    const circle = circleForKey(resizing.key);
-    const data = edgeDistance(event, circle);
+    const data = edgeDistance(event, resizing.key);
     if (!data) return;
     event.preventDefault();
     event.stopPropagation();
@@ -279,10 +284,6 @@ svg?.addEventListener('pointermove', (event) => {
     scheduleRadius(data.distance);
     return;
   }
-
-  const circle = event.target.closest?.('.reference-circle[data-key]');
-  referenceLayer?.querySelectorAll('.reference-circle.radius-edge-hover').forEach((node) => node.classList.remove('radius-edge-hover'));
-  if (circle && isNearCircleEdge(event, circle)) circle.classList.add('radius-edge-hover');
 }, true);
 
 function stopResize(event) {
@@ -294,8 +295,8 @@ function stopResize(event) {
 window.addEventListener('pointerup', stopResize);
 window.addEventListener('pointercancel', stopResize);
 
-// Intercept circle wheel events before the base workbench receives them.
-// Trackpad deltas accumulate and produce small 0.5 px changes, preventing sudden jumps.
+// Faster than the previous revision, but still controlled: 1 px per accumulated
+// trackpad step, with at most three steps per browser wheel event.
 viewer?.addEventListener('wheel', (event) => {
   if (!event.deltaY) return;
   const key = event.target?.dataset?.key;
@@ -310,13 +311,11 @@ viewer?.addEventListener('wheel', (event) => {
   let accumulated = (radiusWheelAccumulator.get(key) || 0) + normalized;
   const direction = Math.sign(accumulated);
   let steps = Math.floor(Math.abs(accumulated) / WEB_RADIUS_WHEEL_THRESHOLD);
-  steps = Math.min(2, steps);
+  steps = Math.min(3, steps);
 
   if (steps > 0) {
     const current = Number(radiusSlider.value);
-    if (Number.isFinite(current)) {
-      applyRadius(current + (direction < 0 ? 1 : -1) * WEB_RADIUS_WHEEL_STEP * steps);
-    }
+    if (Number.isFinite(current)) applyRadius(current + (direction < 0 ? 1 : -1) * WEB_RADIUS_WHEEL_STEP * steps);
     accumulated -= direction * WEB_RADIUS_WHEEL_THRESHOLD * steps;
   }
   radiusWheelAccumulator.set(key, accumulated);
@@ -341,7 +340,6 @@ function clipboardOriginalFilename(event) {
   const files = [...(event.clipboardData?.files || [])];
   const image = files.find((file) => file.type?.startsWith('image/'));
   if (image?.name && !genericClipboardFilename(image.name)) return image.name;
-
   const uriName = basenameFromClipboardText(event.clipboardData?.getData('text/uri-list'));
   if (uriName) return uriName;
   const textName = basenameFromClipboardText(event.clipboardData?.getData('text/plain'));
@@ -374,14 +372,17 @@ function restorePastedFilename(filename, attempts = 0) {
   }
 }
 
-// Safari often keeps the actual filename when a file is copied from Finder,
-// even though the base UI used to replace the visible label with “Portapapeles”.
-// Capture that metadata before the base paste handler runs and restore it afterward.
 window.addEventListener('paste', (event) => {
   const filename = clipboardOriginalFilename(event);
   if (!filename) return;
   window.setTimeout(() => restorePastedFilename(filename), 0);
 }, { capture: true });
+
+for (const [id, direction] of [['nudge-left', -1], ['nudge-right', 1]]) {
+  document.getElementById(id)?.addEventListener('click', (event) => {
+    window.dispatchEvent(new CustomEvent('kpai:nudge-circle', { detail: { direction, coarse: event.shiftKey } }));
+  });
+}
 
 for (const button of document.querySelectorAll('[data-language]')) {
   button.addEventListener('click', () => requestAnimationFrame(() => {
