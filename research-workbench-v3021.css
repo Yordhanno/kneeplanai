@@ -4,25 +4,34 @@
 .results-panel,.references-panel{position:relative;top:auto}
 .workbench-header{z-index:20}
 
-.viewer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.viewer-actions{grid-template-columns:1fr 1fr}
 .viewer-actions button{min-width:0;padding-inline:6px}
 #calibrate-25.active{border-color:#f5c451;color:#f5c451;background:rgba(245,196,81,.09)}
-.calibration-status{margin:8px 0 0;padding:8px 9px;border:1px solid #23343e;border-radius:8px;color:#7f929d;font-size:.58rem;line-height:1.4;background:#081117}
+.calibration-status{margin:6px 0 8px;padding:8px 9px;border:1px solid #23343e;border-radius:8px;color:#7f929d;font-size:.58rem;line-height:1.4;background:#081117}
 .calibration-status.complete{border-color:rgba(245,196,81,.45);color:#e9cf87;background:rgba(116,86,22,.12)}
 .calibration-status.dicom{border-color:rgba(42,213,182,.35);color:#83cfc2}
 
-/* The native app does not write landmark labels over the radiograph. */
+.calibration-control{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:end;margin-top:8px}
+.calibration-control label{display:grid;gap:4px;color:#9aabb4;font-size:.58rem;font-weight:700}
+.calibration-input{height:34px;display:flex;align-items:center;border:1px solid #263943;border-radius:8px;background:#071017;overflow:hidden}
+.calibration-input input{width:100%;min-width:0;height:100%;border:0;outline:0;background:transparent;color:#ecf5f7;padding:0 7px;font:700 .68rem Inter,sans-serif;-moz-appearance:textfield}
+.calibration-input input::-webkit-inner-spin-button,.calibration-input input::-webkit-outer-spin-button{opacity:.65}
+.calibration-input span{padding:0 8px;color:#82939d;font-size:.62rem;border-left:1px solid #263943}
+.calibration-control button{height:34px;border:1px solid #6a5419;background:rgba(116,86,22,.1);color:#ead28d;border-radius:8px;padding:0 9px;font:700 .6rem Inter,sans-serif;cursor:pointer}
+.calibration-control button:hover{border-color:#c59a2c;color:#f5d879}
+
+.nudge-control{margin-top:9px;padding-top:9px;border-top:1px solid #192a33;display:grid;gap:6px}
+.nudge-title{text-align:center;color:#43d8bd;font-size:.57rem;font-weight:800;letter-spacing:.11em}
+.nudge-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.nudge-buttons button{height:35px;border:1px solid #2c6e65;border-radius:8px;background:rgba(27,115,102,.09);color:#dcebee;font:800 1rem Inter,sans-serif;cursor:pointer}
+.nudge-buttons button:hover{border-color:#43d8bd;color:#43d8bd;background:rgba(27,115,102,.16)}
+.nudge-control p{margin:0;color:#70818b;font-size:.55rem;line-height:1.35;text-align:center}
+
 .reference-label,.calibration-label{display:none!important}
 
-/*
-  v3.0.21 graphics_items.py parity.
-  IMPORTANT: Qt cosmetic pen widths / ignores-transform marker sizes are device pixels.
-  JS defines these CSS variables divided by window.devicePixelRatio so Retina Safari
-  does not render them at twice the native physical size.
-*/
 .reference-circle{
   cursor:grab;
-  stroke-width:var(--kpai-circle-stroke,1.25px)!important;
+  stroke-width:var(--kpai-circle-stroke,.8px)!important;
   fill:transparent!important;
   vector-effect:non-scaling-stroke;
   pointer-events:all
@@ -35,11 +44,7 @@
 .reference-circle[data-key="tibia_t10"]{stroke:#65A30D!important}
 .reference-circle[data-key="tobillo"]{stroke:#EC4899!important}
 
-.native-circle-center{
-  stroke:#FFFFFF!important;
-  stroke-width:var(--kpai-center-stroke,.5px)!important;
-  vector-effect:non-scaling-stroke
-}
+.native-circle-center{stroke:#FFFFFF!important;stroke-width:var(--kpai-center-stroke,.5px)!important;vector-effect:non-scaling-stroke}
 .native-circle-center[data-key="cabeza"]{fill:#14B8A6!important}
 .native-circle-center[data-key="femur_proximal"]{fill:#A855F7!important}
 .native-circle-center[data-key="femur_f10"]{fill:#06B6D4!important}
@@ -47,30 +52,18 @@
 .native-circle-center[data-key="tibia_t10"]{fill:#65A30D!important}
 .native-circle-center[data-key="tobillo"]{fill:#EC4899!important}
 
-.native-landmark-point{
-  stroke-width:var(--kpai-point-stroke,.75px)!important;
-  vector-effect:non-scaling-stroke
-}
+.native-landmark-point{stroke-width:var(--kpai-point-stroke,.75px)!important;vector-effect:non-scaling-stroke}
 .native-landmark-point[data-key="femur_distal"]{fill:#A96D08!important;stroke:#F59E0B!important}
 .native-landmark-point[data-key="tibia_proximal"]{fill:#5528A3!important;stroke:#7C3AED!important}
 
-.native-line-endpoint{
-  fill:#FFFFFF!important;
-  stroke-width:var(--kpai-endpoint-stroke,.75px)!important;
-  vector-effect:non-scaling-stroke
-}
+.native-line-endpoint{fill:#FFFFFF!important;stroke-width:var(--kpai-endpoint-stroke,.75px)!important;vector-effect:non-scaling-stroke}
 .native-line-endpoint[data-key="linea_femoral"]{stroke:#F59E0B!important}
 .native-line-endpoint[data-key="linea_tibial"]{stroke:#3B82F6!important}
 
-/* Femoral/tibial joint lines are intentionally a little lighter in the web renderer. */
-.reference-line{
-  stroke-width:var(--kpai-reference-line-stroke,.625px)!important;
-  vector-effect:non-scaling-stroke
-}
+.reference-line{stroke-width:var(--kpai-reference-line-stroke,.625px)!important;vector-effect:non-scaling-stroke}
 .reference-line[data-key="linea_femoral"]{stroke:#F59E0B!important}
 .reference-line[data-key="linea_tibial"]{stroke:#3B82F6!important}
 
-/* v3.0.21 image_view.py axis parity, also in physical device pixels. */
 .axis-line{vector-effect:non-scaling-stroke;opacity:1}
 .axis-mechanical-femur{stroke:#22C55E!important;stroke-width:var(--kpai-mechanical-axis-stroke,1.2px)!important}
 .axis-mechanical-tibia{stroke:#EF4444!important;stroke-width:var(--kpai-mechanical-axis-stroke,1.2px)!important}
@@ -80,37 +73,17 @@
 .axis-local-tibia-guide{stroke:#84CC16!important;stroke-width:var(--kpai-local-axis-stroke,.75px)!important;opacity:1}
 .calibration-line{stroke:#f5c451!important;stroke-width:var(--kpai-reference-line-stroke,.625px)!important;vector-effect:non-scaling-stroke;opacity:1}
 
-/* Native-like selected circle: light dotted bounding rectangle. */
-.circle-selection-box{
-  fill:none;
-  stroke:rgba(235,243,246,.72);
-  stroke-width:var(--kpai-selection-stroke,.5px);
-  stroke-dasharray:2 2;
-  vector-effect:non-scaling-stroke;
-  pointer-events:none
-}
-.reference-circle.radius-edge-hover{cursor:nwse-resize!important}
-.viewer-scroll.circle-resizing,.viewer-scroll.circle-resizing svg{cursor:nwse-resize!important}
+.circle-selection-box{fill:none;stroke:rgba(235,243,246,.72);stroke-width:var(--kpai-selection-stroke,.5px);stroke-dasharray:2 2;vector-effect:non-scaling-stroke;pointer-events:none}
+.reference-circle.radius-edge-hover{cursor:move!important}
+.viewer-scroll.circle-resizing,.viewer-scroll.circle-resizing svg{cursor:move!important}
 
-/* Native tool modes: open hand/crosshair. */
 .viewer-scroll.placement-mode,.viewer-scroll.placement-mode svg{cursor:crosshair!important}
 .viewer-scroll.placement-mode .reference-circle,.viewer-scroll.placement-mode .reference-handle{cursor:crosshair!important}
 
-/* Review remains recorded in the payload without adding an extra user step. */
 .review-check{display:none!important}
-
 .status-card.complete p{color:#d6e4e7;font-weight:650}
 .viewer-toolbar p{white-space:normal;text-align:right;line-height:1.25;max-width:620px}
 
-@media(max-width:1270px){
-  .viewer-actions{grid-template-columns:1fr 1fr}
-  #calibrate-25{grid-column:1/-1}
-}
-@media(max-width:1023px){
-  .case-toolbar{z-index:12}
-  .viewer-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
-  #calibrate-25{grid-column:auto}
-}
-@media(max-width:560px){
-  .viewer-actions{grid-template-columns:1fr}
-}
+@media(max-width:1270px){.viewer-actions{grid-template-columns:1fr 1fr}.calibration-control{grid-template-columns:1fr}}
+@media(max-width:1023px){.case-toolbar{z-index:12}.viewer-actions{grid-template-columns:1fr 1fr}.calibration-control{grid-template-columns:minmax(0,1fr) auto}}
+@media(max-width:560px){.viewer-actions,.calibration-control{grid-template-columns:1fr}}
