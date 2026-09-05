@@ -5,6 +5,7 @@
   "main": "worker-auth.js",
   "vars": {
     "ADMIN_EMAIL": "yordano97@gmail.com",
+    "ADMIN_AUTH_ALIASES": "yordhanno.fallaque@icloud.com",
     "APPLE_SERVICE_ID": "com.yordhannofallaque.kneeplanai.research",
     "APPLE_ACCESS_CALLBACK": "https://nameless-sunset-e994.cloudflareaccess.com/cdn-cgi/access/callback",
     "APPLE_BRIDGE_CALLBACK": "https://kneeplanai.com/auth/apple/callback"
