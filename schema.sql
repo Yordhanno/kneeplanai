@@ -18,6 +18,33 @@ CREATE TABLE IF NOT EXISTS researchers (
 
 CREATE INDEX IF NOT EXISTS idx_researchers_status ON researchers(status);
 
+CREATE TABLE IF NOT EXISTS researcher_auth_emails (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  researcher_id INTEGER NOT NULL,
+  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  provider TEXT NOT NULL DEFAULT '',
+  is_primary INTEGER NOT NULL DEFAULT 0 CHECK (is_primary IN (0, 1)),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (researcher_id) REFERENCES researchers(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_researcher_auth_emails_researcher
+  ON researcher_auth_emails(researcher_id);
+
+INSERT OR IGNORE INTO researcher_auth_emails (researcher_id, email, provider, is_primary)
+SELECT id, email, 'primary', 1 FROM researchers;
+
+CREATE TABLE IF NOT EXISTS apple_oidc_states (
+  state_hash TEXT PRIMARY KEY,
+  upstream_state TEXT NOT NULL,
+  upstream_redirect_uri TEXT NOT NULL,
+  upstream_nonce TEXT NOT NULL DEFAULT '',
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_apple_oidc_states_expires ON apple_oidc_states(expires_at);
+
 CREATE TABLE IF NOT EXISTS validation_results (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   researcher_id INTEGER NOT NULL,
