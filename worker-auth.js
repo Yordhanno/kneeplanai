@@ -8,21 +8,7 @@ const DEFAULT_ACCESS_CALLBACK = 'https://nameless-sunset-e994.cloudflareaccess.c
 const DEFAULT_APPLE_CALLBACK = 'https://kneeplanai.com/auth/apple/callback';
 const APPLE_AUTHORIZE_URL = 'https://appleid.apple.com/auth/authorize';
 const APPLE_TOKEN_URL = 'https://appleid.apple.com/auth/token';
-const STATE_TTL_SECONDS = 600;
-let appleStateSchemaPromise = null;
 let authAliasSchemaPromise = null;
-
-const APPLE_STATE_SCHEMA_SQL = `
-CREATE TABLE IF NOT EXISTS apple_oidc_states (
-  state_hash TEXT PRIMARY KEY,
-  upstream_state TEXT NOT NULL,
-  upstream_redirect_uri TEXT NOT NULL,
-  upstream_nonce TEXT NOT NULL DEFAULT '',
-  created_at INTEGER NOT NULL,
-  expires_at INTEGER NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_apple_oidc_states_expires ON apple_oidc_states(expires_at);
-`;
 
 const AUTH_ALIAS_SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS researcher_auth_emails (
@@ -56,17 +42,8 @@ export default {
 };
 
 async function handleAppleBridge(request, env, url) {
-  if (!env.RESEARCH_DB) return bridgeJson({ error: 'database_unavailable' }, 503);
-
-  try {
-    await ensureAppleStateSchema(env.RESEARCH_DB);
-  } catch (error) {
-    console.error('Apple bridge schema error', error);
-    return bridgeJson({ error: 'database_unavailable' }, 503);
-  }
-
   if (request.method === 'GET' && url.pathname === '/auth/apple/health') {
-    return bridgeJson({ ok: true, service: 'kneeplanai-apple-oidc-bridge', version: 1 });
+    return bridgeJson({ ok: true, service: 'kneeplanai-apple-oidc-bridge', version: 2 });
   }
 
   if (request.method === 'GET' && url.pathname === '/auth/apple/authorize') {
@@ -84,31 +61,20 @@ async function handleAppleBridge(request, env, url) {
   return bridgeJson({ error: 'not_found' }, 404);
 }
 
-async function handleAppleAuthorize(env, url) {
+function handleAppleAuthorize(env, url) {
   const serviceId = appleServiceId(env);
   const accessCallback = accessCallbackUrl(env);
   const appleCallback = appleCallbackUrl(env);
   const clientId = clean(url.searchParams.get('client_id'), 300);
   const redirectUri = clean(url.searchParams.get('redirect_uri'), 1000);
   const responseType = clean(url.searchParams.get('response_type'), 100);
-  const upstreamState = clean(url.searchParams.get('state'), 2000);
-  const upstreamNonce = clean(url.searchParams.get('nonce'), 2000);
+  const upstreamState = clean(url.searchParams.get('state'), 4000);
+  const upstreamNonce = clean(url.searchParams.get('nonce'), 4000);
 
   if (clientId !== serviceId) return oauthError('invalid_request', 'invalid_client_id');
   if (redirectUri !== accessCallback) return oauthError('invalid_request', 'invalid_redirect_uri');
   if (!responseType.split(/\s+/).includes('code')) return oauthError('unsupported_response_type', 'code_required');
   if (!upstreamState) return oauthError('invalid_request', 'state_required');
-
-  const now = Math.floor(Date.now() / 1000);
-  const bridgeState = randomToken();
-  const stateHash = await sha256(bridgeState);
-
-  await env.RESEARCH_DB.prepare('DELETE FROM apple_oidc_states WHERE expires_at < ?').bind(now).run();
-  await env.RESEARCH_DB.prepare(
-    `INSERT INTO apple_oidc_states
-      (state_hash, upstream_state, upstream_redirect_uri, upstream_nonce, created_at, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?)`
-  ).bind(stateHash, upstreamState, redirectUri, upstreamNonce, now, now + STATE_TTL_SECONDS).run();
 
   const appleUrl = new URL(APPLE_AUTHORIZE_URL);
   appleUrl.searchParams.set('client_id', serviceId);
@@ -116,7 +82,7 @@ async function handleAppleAuthorize(env, url) {
   appleUrl.searchParams.set('response_type', 'code');
   appleUrl.searchParams.set('response_mode', 'form_post');
   appleUrl.searchParams.set('scope', 'email');
-  appleUrl.searchParams.set('state', bridgeState);
+  appleUrl.searchParams.set('state', upstreamState);
   if (upstreamNonce) appleUrl.searchParams.set('nonce', upstreamNonce);
 
   return Response.redirect(appleUrl.toString(), 302);
@@ -129,22 +95,10 @@ async function handleAppleCallback(request, env) {
   }
 
   const form = await request.formData();
-  const bridgeState = clean(form.get('state'), 2000);
-  if (!bridgeState) return bridgeJson({ error: 'invalid_state' }, 400);
+  const state = clean(form.get('state'), 4000);
+  if (!state) return bridgeJson({ error: 'invalid_state' }, 400);
 
-  const stateHash = await sha256(bridgeState);
-  const row = await env.RESEARCH_DB.prepare(
-    `SELECT state_hash, upstream_state, upstream_redirect_uri, upstream_nonce, expires_at
-     FROM apple_oidc_states WHERE state_hash = ?`
-  ).bind(stateHash).first();
-
-  await env.RESEARCH_DB.prepare('DELETE FROM apple_oidc_states WHERE state_hash = ?').bind(stateHash).run();
-
-  const now = Math.floor(Date.now() / 1000);
-  if (!row || Number(row.expires_at || 0) < now) return bridgeJson({ error: 'invalid_or_expired_state' }, 400);
-  if (row.upstream_redirect_uri !== accessCallbackUrl(env)) return bridgeJson({ error: 'invalid_upstream_redirect' }, 400);
-
-  const target = new URL(row.upstream_redirect_uri);
+  const target = new URL(accessCallbackUrl(env));
   const appleError = clean(form.get('error'), 200);
   const code = clean(form.get('code'), 5000);
 
@@ -159,7 +113,7 @@ async function handleAppleCallback(request, env) {
     target.searchParams.set('error_description', 'apple_authorization_code_missing');
   }
 
-  target.searchParams.set('state', row.upstream_state);
+  target.searchParams.set('state', state);
   return Response.redirect(target.toString(), 302);
 }
 
@@ -268,16 +222,6 @@ async function findResearcherByAuthEmail(database, email) {
   ).bind(normalized).first();
 }
 
-async function ensureAppleStateSchema(database) {
-  if (!appleStateSchemaPromise) {
-    appleStateSchemaPromise = database.exec(APPLE_STATE_SCHEMA_SQL).catch((error) => {
-      appleStateSchemaPromise = null;
-      throw error;
-    });
-  }
-  return appleStateSchemaPromise;
-}
-
 async function ensureAuthAliasSchema(database) {
   if (!authAliasSchemaPromise) {
     authAliasSchemaPromise = (async () => {
@@ -351,20 +295,4 @@ function bridgeJson(payload, status = 200, extraHeaders = {}) {
 
 function clean(value, maxLength) {
   return String(value ?? '').trim().slice(0, maxLength);
-}
-
-function randomToken() {
-  const bytes = crypto.getRandomValues(new Uint8Array(32));
-  return base64Url(bytes);
-}
-
-async function sha256(value) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-  return base64Url(new Uint8Array(digest));
-}
-
-function base64Url(bytes) {
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
 }
