@@ -2,9 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "kneeplanai",
   "compatibility_date": "2026-08-24",
-  "main": "worker.js",
+  "main": "worker-auth.js",
   "vars": {
-    "ADMIN_EMAIL": "yordhanno.fallaque@icloud.com"
+    "ADMIN_EMAIL": "yordano97@gmail.com",
+    "APPLE_SERVICE_ID": "com.yordhannofallaque.kneeplanai.research",
+    "APPLE_ACCESS_CALLBACK": "https://nameless-sunset-e994.cloudflareaccess.com/cdn-cgi/access/callback",
+    "APPLE_BRIDGE_CALLBACK": "https://kneeplanai.com/auth/apple/callback"
   },
   "d1_databases": [
     {
