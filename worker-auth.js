@@ -182,6 +182,8 @@ async function canonicalizeResearchAccessEmail(request, env, url) {
     const schemaReady = await ensureAuthAliasSchema(env.RESEARCH_DB);
     if (!schemaReady) return request;
 
+    await seedConfiguredAdminAliases(env.RESEARCH_DB, env);
+
     const user = await findResearcherByAuthEmail(env.RESEARCH_DB, incoming);
     if (!user) return request;
 
@@ -204,6 +206,37 @@ async function canonicalizeResearchAccessEmail(request, env, url) {
     console.error('Research auth alias resolution error', error);
     return request;
   }
+}
+
+async function seedConfiguredAdminAliases(database, env) {
+  const configuredAdmin = clean(env.ADMIN_EMAIL, 254).toLowerCase();
+  if (!configuredAdmin) return;
+
+  const aliases = String(env.ADMIN_AUTH_ALIASES || '')
+    .split(',')
+    .map((value) => clean(value, 254).toLowerCase())
+    .filter(Boolean);
+  if (!aliases.length) return;
+
+  const admin = await database.prepare('SELECT id FROM researchers WHERE email = ? COLLATE NOCASE')
+    .bind(configuredAdmin).first();
+  if (!admin) return;
+
+  for (const alias of aliases) {
+    await database.prepare(
+      `INSERT OR IGNORE INTO researcher_auth_emails
+        (researcher_id, email, provider, is_primary)
+       VALUES (?, ?, ?, 0)`
+    ).bind(admin.id, alias, providerForAlias(alias)).run();
+  }
+}
+
+function providerForAlias(email) {
+  const normalized = clean(email, 254).toLowerCase();
+  if (normalized.endsWith('@icloud.com') || normalized.endsWith('@me.com') || normalized.endsWith('@mac.com') || normalized.endsWith('@privaterelay.appleid.com')) return 'apple';
+  if (normalized.endsWith('@gmail.com') || normalized.endsWith('@googlemail.com')) return 'google';
+  if (normalized.endsWith('@outlook.com') || normalized.endsWith('@hotmail.com') || normalized.endsWith('@live.com')) return 'microsoft';
+  return 'alias';
 }
 
 async function findResearcherByAuthEmail(database, email) {
